@@ -77,3 +77,39 @@ controller.hears(['dm me'],['direct_message','direct_mention'],function(bot,mess
 	});
 
 });
+
+function SetAnswer(answerLetter){
+    return {
+        pattern: answerLetter,
+        callback: function(response,convo) {
+
+            // send answer to api
+
+            convo.say('your have answer ! ' + answerLetter);
+            convo.next();
+        }
+    };
+}
+
+function StartConversation(bot, message, question) {
+    question = question || 'Le hackaton est ben fun.\n A)je suis daccord \nB) pas daccord \nC) incertain \nD) passer ';
+// start a conversation to handle this response.
+    bot.startConversation(message, function (err, convo) {
+
+        convo.ask(question, [
+            SetAnswer('A'),
+            SetAnswer('B'),
+            SetAnswer('C'),
+            SetAnswer('S'),
+        ]);
+
+    })
+}
+controller.hears(['start'],['direct_message','direct_mention','mention','ambient'],function(bot,message) {
+
+    // get questions
+
+	StartConversation(bot, message, 'Le hackaton est ben fun.\n A)je suis daccord \nB) pas daccord \nC) incertain \nD) passer ');
+
+});
+
