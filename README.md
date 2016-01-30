@@ -10,7 +10,19 @@ npm install
 
 ## Test
 
-Start the server
+### Set local config
+
+create a config file (config/default.json)
+
+Config File example
+```json
+{
+  "botToken": "xoxb-19876974532-7QVlS3XRzYFQ4fIkMVxIwCEd",
+  "user": "aboulay"
+}
+```
+
+### Start the server
 ```sh
 node index.js
 ```

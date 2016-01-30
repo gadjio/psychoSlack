@@ -1,9 +1,18 @@
 var SlackBot = require('slackbots');
 
+// Get user config
+var config = require('config'),
+	botToken = config.get('botToken'),
+	user = config.get('user');
+
+console.log("\n" + "Current config:");
+console.log("Bot token: " + botToken);
+console.log("User: " + user + "\n");
+
 // create a bot 
 var bot = new SlackBot({
-	token: 'xoxb-19876974532-7QVlS3XRzYFQ4fIkMVxIwCEd', // alexbot  
-	name: 'AlexBot'
+	token: botToken,
+	name:  user + 'Bot'
 });
 
 bot.on('start', function() {
@@ -26,10 +35,9 @@ bot.on('start', function() {
 		console.log(data);
 
 		if (data.text === "start") {
-			bot.postMessageToUser('aboulay', 'hi').then(function(data) {
+			bot.postMessageToUser(user, 'hi').then(function(data) {
 				console.log("fail");	
 			})
-
 		}
 	});
 });

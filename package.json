@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/gadjio/psychoSlack#readme",
   "dependencies": {
+    "config": "^1.19.0",
+    "read-config": "^1.6.0",
     "slackbots": "^0.5.1"
   }
 }
