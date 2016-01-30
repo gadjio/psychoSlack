@@ -11,36 +11,69 @@ console.log("Bot token: " + botToken);
 console.log("Bot name: " + botName);
 console.log("Test user: " + testUser + "\n");
 
-// create a bot 
-var bot = new SlackBot({
-	token: botToken,
-	name:  botName
+var Botkit = require('botkit');
+var controller = Botkit.slackbot();
+var bot = controller.spawn({
+	token: botToken
+})
+
+bot.startRTM(function(err,bot,payload) {
+	if (err) {
+		throw new Error('Could not connect to Slack');
+	}
+	else {
+		console.log('Connected to bot ' + this.name);
+	}
 });
 
-bot.on('start', function() {
-	// more information about additional params https://api.slack.com/methods/chat.postMessage 
-	var params = {
-		icon_emoji: ':cat:'
+controller.hears(['hello','hi'],['direct_message','direct_mention','mention'],function(bot,message) {
+	bot.reply(message,"Hello.");
+});
+
+controller.hears(['attach'],['direct_message','direct_mention'],function(bot,message) {
+
+	var attachments = [];
+	var attachment = {
+		title: 'This is an attachment',
+		color: '#FFCC99',
+		fields: [],
 	};
 
-	// define channel, where bot exist. You can adjust it there https://my.slack.com/services  
-	//bot.postMessageToChannel('general', 'meow!', params);
+	attachment.fields.push({
+		label: 'Field',
+		value: 'A longish value',
+		short: false,
+	});
 
-	// define existing username instead of 'user_name' 
-	//bot.postMessageToUser('user_name', 'meow!', params); 
+	attachment.fields.push({
+		label: 'Field',
+		value: 'Value',
+		short: true,
+	});
 
-	// define private group instead of 'private_group', where bot exist 
-	//bot.postMessageToGroup('private_group', 'meow!', params); 
+	attachment.fields.push({
+		label: 'Field',
+		value: 'Value',
+		short: true,
+	});
 
-	bot.on('message', function(data) {
-		// all ingoing events https://api.slack.com/rtm 
-		console.log(data);
+	attachments.push(attachment);
 
-		if (data.text === "start") {
-			bot.postMessageToUser(testUser, 'hi').then(function(data) {
-				console.log("fail");	
-			})
-		}
+	bot.reply(message,{
+		text: 'See below...',
+		attachments: attachments,
+	},function(err,resp) {
+		console.log(err,resp);
 	});
 });
 
+controller.hears(['dm me'],['direct_message','direct_mention'],function(bot,message) {
+	bot.startConversation(message,function(err,convo) {
+		convo.say('Heard ya');
+	});
+
+	bot.startPrivateConversation(message,function(err,dm) {
+		dm.say('Private reply!');
+	});
+
+});
