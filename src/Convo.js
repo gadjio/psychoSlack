@@ -3,6 +3,8 @@ function Convo(bot, usersList) {
     this.usersList = usersList;
 }
 
+var AtmanWrapper = require('./AtmanWrapper');
+
 Convo.prototype.start = function(message) {
     if (this.usersList.getGender(message.user) === "undef") {
       this.askQuestion(message); // Check if you need to kill current convo conversation.next()
@@ -35,13 +37,82 @@ Convo.prototype.askQuestionCallback = function(answer) {
 
 Convo.prototype.askQuestion = function(message) {
     var self = this;
-    // var question = GetQuestion();
+    //var question = GetQuestion();
 
-    var question = 'Le hackaton est ben fun.\n A) je suis daccord \nB) pas daccord \nC) incertain \nD) passer ';
+    function formatQuestion(JSONquestion) {
+        var possibleAnswers = JSONquestion.assessmentAnswer;
+        possibleAnswers = possibleAnswers.map(function(answer) {
+            return {
+                question: answer.value + ":\t" + answer.text,
+                isDisabled: answer.isDisabled
+            }
+        }).filter(function(answer) {
+            return !answer.isDisabled;
+        }).map(function(answer) {
+            return answer.question;
+        }).reduce(function(a, b) {
+            var something = a + "\n" + b;
+            console.log(something);
+            return something;
+        });
+
+        var fallback = JSONquestion.assessmentQuestion + " - " + possibleAnswers;
+        var numberOfQuestionsRemaining = JSONquestion.totalNumberOfQuestions - JSONquestion.numberOfQuestionAnswered + " questions remaining";
+        const numberOfBRemaining = JSONquestion.numberOfBLeft;
+        var remainingBColor = numberOfBRemaining >= 8 ? "#1ecd26" : numberOfBRemaining >= 4 ? "#f5ed18" : "#f52d18";
+
+        return {
+            "text" : "",
+            "attachments": [
+                {
+                    "fallback": fallback,
+                    "color": "#DE9E31",
+                    "pretext": numberOfQuestionsRemaining,
+                    "title": JSONquestion.assessmentQuestion,
+                    "text": possibleAnswers
+                },
+                {
+                    "text" : JSONquestion.localizedNumberOfB,
+                    "color" : remainingBColor
+                }
+            ]
+        };
+    }
+
+    var question = {
+        "assessmentQuestion": "Usually, when I go to bed:",
+        "assessmentAnswer": [{
+            "value": "A",
+            "text": "I fall asleep as soon as my head hits the pillow",
+            "isDisabled": false
+        }, {
+            "value": "B",
+            "text": "in between",
+            "isDisabled": false
+        }, {
+            "value": "C",
+            "text": "I toss and turn for a while before falling asleep",
+            "isDisabled": false
+        }, {
+            "value": "Z",
+            "text": "Skip",
+            "isDisabled": false
+        }],
+        "currentQuestionNumber": 1,
+        "totalNumberOfQuestions": 70,
+        "numberOfBLeft": 3,
+        "numberOfQuestionAnswered": 0,
+        "questionId": 10,
+        "assesmentIsCompleted": false,
+        "localizedNumberOfB": "3 \"B\" answer(s) left of 11",
+        "canUsePrevious": false
+    };
+
+    var formattedQuestion = formatQuestion(question);
 
     // start a conversation to handle this response.
     this.bot.startConversation(message, function (err, conversation) {
-        conversation.ask(question, [
+        conversation.ask(formattedQuestion, [
             self.askQuestionCallback('[a|A]'),
             self.askQuestionCallback('[b|B]'),
             self.askQuestionCallback('[c|C]'),
