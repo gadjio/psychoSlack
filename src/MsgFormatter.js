@@ -7,6 +7,7 @@
 
     MessageFormatter.prototype.formatQuestion = function(JSONquestion) {
 
+        console.log('formatQuestion');
         var possibleAnswers = JSONquestion.assessmentAnswer;
         possibleAnswers = possibleAnswers.map(function(answer) {
             return {
