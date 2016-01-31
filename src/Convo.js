@@ -84,7 +84,7 @@ Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
     } else {
         // we ask the gender
         if(!self.usersList[user].hasOwnProperty('saidIntro')) {
-            conversation.say(this.getIntroMessage(requestingUserId));
+            conversation.say(this.getIntroMessage(user, requestingUserId));
             self.usersList[user]['saidIntro'] = true;
         }
         var formatter = new MessageFormatter();
@@ -102,12 +102,20 @@ Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
     }
 };
 
-Convo.prototype.getIntroMessage = function(requestingUserId) {
-//    console.log(self.usersList[requestingUserId]);
+Convo.prototype.getIntroMessage = function(user, requestingUserId) {
+    var introBegin;
 
-    //"We are glad to see you’re eager to learn more about your innate skills with this personality test!" @aboulay
+    if (requestingUserId) {
+        console.log(this.usersList[requestingUserId].name);
+        introBegin =  "Care to figure out your innate skills? " +
+            this.usersList[requestingUserId].real_name +
+            " invited you to complete a personality test.\n";
+    } else {
+        introBegin = "We are glad to see you’re eager to learn more about your innate skills with this personality test! " +
+            this.usersList[requestingUserId].real_name
+    }
 
-    return "Care to figure out your innate skills? [@person] invited you to complete a personality test.\n" +
+    return introBegin +
         "It’s simple: just answer these 70 short questions and you will get your results instantly. Careful: you can’t pick “B” more than 11 times.\n" +
         "Have fun!";
 };
@@ -164,7 +172,6 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
             self.askQuestion(conversation, response.user);
         }
     }
-
 };
 
 module.exports = Convo;

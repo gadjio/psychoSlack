@@ -94,16 +94,8 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 		}
 	};
 
-
-	console.log(botToken);
-
-	var options = {
-		token: slackApiToken,
-		channel: message.channel
-	};
-
 	console.log("bot.api.channels.info : ");
-	bot.api.channels.info( options, callBackChannelInfo );
+	bot.api.channels.info( { token: slackApiToken, channel: message.channel }, callBackChannelInfo );
 
 });
 
