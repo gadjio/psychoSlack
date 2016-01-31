@@ -18,12 +18,10 @@ console.log("Authentification token: " + authToken);
 console.log("Atman api url: " + atmanApiUrl);
 console.log("\n");
 
-var wrapper = new AtmanWrapper(request, authToken, atmanApiUrl);
-
 var controller = Botkit.slackbot();
 var bot = controller.spawn({ token: botToken});
 var usersList = new UsersList();
-var convo = new Convo(bot, usersList, wrapper);
+var convo = new Convo(bot, usersList, authToken, atmanApiUrl);
 
 var getUsers = function(status, response) {
 	console.log(status);
