@@ -20,6 +20,17 @@ Convo.prototype.askQuestion = function(conversation, user) {
     console.log('askQuestion');
     var self = this;
 
+    //if (user in self.usersList){
+    //    var usersOptions = {
+    //        token: token,
+    //        user: user
+    //    };
+    //
+    //    bot.api.users.info(usersOptions, function (err, response) {
+    //        self.usersList.load(response)
+    //    });
+    //}
+
     if (self.usersList[user].hasOwnProperty('gender')) {
 
         // gender is set, fetch the next question from api, then ask it

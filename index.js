@@ -10,12 +10,17 @@ var botToken = config.get('botToken');
 var botName = config.get('botName');
 var testUser = config.get('testUser');
 
+var optionToken = 'xoxp-19879990401-19874729492-19892570103-995c3fc727'
 var options = {
-	token: 'xoxp-19879990401-19874729492-19892570103-995c3fc727',
+	token: optionToken,
 };
 
+var invitationMessage ="Hello there!, " + Date.now();
+//var invitationMessage ="Hello there!, You have been invited to do Atman assessment"
+
+
 console.log("\n" + "Current config:");
-console.log("Bot token: " + botToken);
+console.log("Bot optionToken: " + botToken);
 console.log("Bot name: " + botName);
 console.log("Test user: " + testUser + "\n");
 
@@ -61,9 +66,6 @@ controller.hears(['start'],['direct_message'],function(bot,message) {
 
 controller.hears(['invite'],['direct_mention'],function(bot,message) {
 
-	var self = this;
-
-
 	var callBackChannelInfo = function(status, response){
 
 		if(status != undefined)
@@ -80,7 +82,7 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 			for (var i = 0; i < total; i++) {
 				var userId = response.channel.members[i]
 				var usersOptions = {
-					token: 'xoxp-19879990401-19874729492-19892570103-995c3fc727',
+					token: optionToken,
 					user: userId
 				};
 
@@ -92,9 +94,24 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 							user: response.user.id
 						};
 						bot.startPrivateConversation(msg, function(err, dm){
-
 							console.log(JSON.stringify(err));
-							dm.say("Bonne nuit ");
+
+							dm.say(invitationMessage, function (err, response){
+								console.log(JSON.stringify(response));
+								convo.start(response);
+
+							});
+
+							//var dmMessage={
+							//	channel : dm.channel,
+							//	user : msg.user
+							//}
+                            //
+							//message.channel = dm.channel;
+							//message.user = msg.user;
+							//console.log(JSON.stringify(message));
+
+
 						});
 					}
 
@@ -106,17 +123,13 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 	};
 
 	var options = {
-		token: 'xoxp-19879990401-19874729492-19892570103-995c3fc727',
+		token: optionToken,
 		channel: message.channel
 	};
 
 
 	console.log("bot.api.channels.info : ");
 	bot.api.channels.info( options, callBackChannelInfo );
-
-
-
-	bot.reply(message, JSON.stringify( message.channel));
 
 });
 
