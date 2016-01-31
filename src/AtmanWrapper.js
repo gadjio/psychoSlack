@@ -3,7 +3,7 @@ function AtmanWrapper(request) {
     this.authorization = 'Basic cGhpbGlwcGUuZ3JhbmRtb250QGdtYWlsLmNvbTpoTlV1ajI=';
     this.createCandidateUrl = 'https://sandbox.atmanco.com/api/v1/CreateCandidate';
     this.getQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
-    this.answerQuestion = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
+    this.answerQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
 };
 
 AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
@@ -90,43 +90,6 @@ AtmanWrapper.prototype.getQuestion = function (authKey, languageCode) {
     });
 };
 
-AtmanWrapper.prototype.test = function(authKey, questionId, answer, languageCode) {
-    console.log("test");
-    var self = this;
-
-    return new Promise(function(success, failure) {
-        var body = {
-            LanguageCode: languageCode,
-            QuestionId: questionId,
-            SelectedAnswer: answer,
-            RequestInfo: self.getRequestInfoData(authKey)
-        };
-
-        var options = {
-            url: self.createCandidateUrl,
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: {
-                'Authorization': self.authorization,
-                'Content-Type': 'application/json'
-            }
-        };
-
-        console.log('before request answerQuestion');
-        self.request(options, function (error, response, body) {
-            console.log("answerQuestion received");
-            console.log(response);
-            if (!error && response.statusCode == '200') {
-                console.log("answerQuestion ok");
-                success({body:body});
-            } else {
-                console.log("answerQuestion error");
-                failure(null);
-            }
-        });
-    });
-};
-
 AtmanWrapper.prototype.answerQuestion = function (authKey, questionId, answer, languageCode) {
 
     console.log("answerQuestion");
@@ -141,7 +104,7 @@ AtmanWrapper.prototype.answerQuestion = function (authKey, questionId, answer, l
         };
 
         var options = {
-            url: self.createCandidateUrl,
+            url: self.answerQuestionUrl,
             method: 'POST',
             body: JSON.stringify(body),
             headers: {

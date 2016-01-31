@@ -16,7 +16,7 @@ wrapper.createCandidate('test123242ss2ss@gmail.com', 'Marc', 'Beaudry', 'M', lan
                 var assessmentQuestion = JSON.parse(success.body);
                 var questionId = assessmentQuestion.questionId;
                 console.log(questionId);
-                wrapper.test(authKey, questionId, 'A', languageCode);
+                wrapper.answerQuestion(authKey, questionId, 'A', languageCode);
             }
         )
     }
