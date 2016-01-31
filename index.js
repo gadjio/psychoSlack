@@ -29,7 +29,7 @@ var getUsers = function(status, response) {
 	usersList.loadUsersList(response);
 };
 
-bot.api.users.list( {token: botToken }, getUsers); // Load users list
+bot.api.users.list( { token: slackApiToken }, getUsers); // Load users list
 
 bot.startRTM(function(err, bot, payload) {
 	if (err) {
@@ -71,7 +71,7 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 			for (var i = 0; i < total; i++) {
 				var userId = response.channel.members[i]
 				var usersOptions = {
-					token: optionToken,
+					token: slackApiToken,
 					user: userId
 				};
 
@@ -86,7 +86,7 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 							console.log("start conversation error : " + JSON.stringify(err));
 							console.log("userId : " + response.user.id);
 
-							convo.startFromInvite(dm, response.user.id)
+							convo.startFromInvite(dm, response.user.id, message.user)
 						});
 					}
 				});
@@ -94,8 +94,11 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 		}
 	};
 
+
+	console.log(botToken);
+
 	var options = {
-		token: optionToken,
+		token: slackApiToken,
 		channel: message.channel
 	};
 
