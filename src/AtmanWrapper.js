@@ -4,6 +4,7 @@ function AtmanWrapper(request) {
     this.createCandidateUrl = 'https://sandbox.atmanco.com/api/v1/CreateCandidate';
     this.getQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
     this.answerQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
+    this.getSkillsUrl = 'https://sandbox.atmanco.com/api/v1/GetSkills';
 };
 
 AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
@@ -121,6 +122,40 @@ AtmanWrapper.prototype.answerQuestion = function (authKey, questionId, answer, l
                 success({body:body});
             } else {
                 console.log("answerQuestion error");
+                failure(null);
+            }
+        });
+    });
+};
+
+AtmanWrapper.prototype.getSkills = function (authKey) {
+    console.log("getSkills");
+    var self = this;
+
+    return new Promise(function(success, failure) {
+        var body = {
+            VisualizationCode: "BLOOMED",
+            RequestInfo: self.getRequestInfoData(authKey)
+        };
+
+        var options = {
+            url: self.getSkillsUrl,
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Authorization': self.authorization,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        console.log('before request getSkills');
+        self.request(options, function (error, response, body) {
+            console.log("getSkills received");
+            if (!error && response.statusCode == '200') {
+                console.log("getSkills ok");
+                success({body:body});
+            } else {
+                console.log("getSkills error");
                 failure(null);
             }
         });

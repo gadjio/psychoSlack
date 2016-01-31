@@ -5,7 +5,7 @@ console.log('starting test');
 
 var wrapper = new AtmanWrapper(request);
 var languageCode = 'en-us';
-wrapper.createCandidate('test123242ss2ss@gmail.com', 'Marc', 'Beaudry', 'M', languageCode).then(
+/*wrapper.createCandidate('test123242ss2ss@gmail.com', 'Marc', 'Beaudry', 'M', languageCode).then(
     //success callback
     function(success) {
         var authKey = success.body;
@@ -19,5 +19,19 @@ wrapper.createCandidate('test123242ss2ss@gmail.com', 'Marc', 'Beaudry', 'M', lan
                 wrapper.answerQuestion(authKey, questionId, 'A', languageCode);
             }
         )
+    }
+);*/
+
+wrapper.createCandidate('test123242ss2ss@gmail.com', 'Marc', 'Beaudry', 'M', languageCode).then(
+    //success callback
+    function(success) {
+        var authKey = success.body;
+        console.log(authKey);
+        wrapper.getSkills(authKey).then(
+            function(success) {
+                var skills = success.body;
+                console.log(skills);
+            }
+        );
     }
 );
