@@ -69,7 +69,8 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 		{
 			console.log('status :');
 			console.log(status);
-		}else
+		}
+		else
 		{
 			var devResponse = JSON.stringify(response)
 			console.log("channel.info : " + devResponse);
@@ -99,6 +100,19 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 					}
 				});
 			}
+
+			var bannerMsg = {
+				"text" : "",
+				"attachments": [
+					{
+						"color": "#1ecd26",
+						"text" : "",
+						"mrkdwn_in": ["text"],
+						"image_url" : "http://imageshack.com/a/img923/1038/nok5eJ.png"
+					}
+				]
+			};
+			bot.reply(message, bannerMsg);
 		}
 	};
 
