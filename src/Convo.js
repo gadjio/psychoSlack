@@ -6,7 +6,6 @@ function Convo(bot, usersList) {
     this.bot = bot;
     this.usersListObj = usersList;
     this.usersList = usersList.usersList;
-    this.messageFormatter = new MessageFormatter();
     this.atmanWrapper = new AtmanWrapper(request);
 }
 
@@ -42,8 +41,10 @@ Convo.prototype.askQuestion = function(conversation, user) {
     //}
 
     if (self.usersList[user].hasOwnProperty('gender')) {
+
         // gender is set, fetch the next question from api, then ask it
-        self.atmanWrapper.getQuestion(self.usersList[user]['authKey'], 'en-us').then(
+        var authKey = self.usersList[user]['authKey'];
+        self.atmanWrapper.getQuestion(authKey, 'en-us').then(
 
             function(success) {
 
@@ -94,8 +95,10 @@ Convo.prototype.askQuestion = function(conversation, user) {
         // we ask the gender
         conversation.say(this.getIntroMessage(user));
 
-        var question = 'Male or Female?';
-        conversation.ask(question, [
+        var formatter = new MessageFormatter();
+        var str = formatter.getGenderQuestion();
+        console.log(str);
+        conversation.ask(str, [
             {
                 pattern: '.*',
                 callback: function(response, conversation) {
@@ -147,7 +150,7 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
                 }
             );
         } else {
-            conversation.say("Sorry I did not quite get that");
+            conversation.say("Sorry, you selected an invalid gender");
             self.askQuestion(conversation, response.user);
         }
     } else {
@@ -166,7 +169,7 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
                 }
             );
         } else {
-            conversation.say("Sorry I did not quite get that");
+            conversation.say("Sorry, you selected an invalid option");
             self.askQuestion(conversation, response.user);
         }
     }
