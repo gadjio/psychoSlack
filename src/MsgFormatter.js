@@ -127,10 +127,12 @@
                 attachments.push(item);
             });
 
+        console.log(username);
+
         var bloomedLinkItem ={
             "color": "#1ecd26",
-            "text" : " View your complete profile: " + "bloomed.com" + " \nUsername : " + username + "\nPassword : 1234" ,
-            "mrkdwn_in": ["text"],
+            "pretext" : " View your complete profile: " + "bloomed.com" + " \nUsername : " + username + "\nTemporary Password : 1234" ,
+
         };
         attachments.push(bloomedLinkItem);
 

@@ -63,7 +63,7 @@ Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
                         function(success) {
                             var skills = JSON.parse(success.body);
                             var formatter = new MessageFormatter();
-                            var str = formatter.formatResult(skills, self.usersListObj.getEmail(user));
+                            var str = formatter.formatResult(skills, self.usersList[user]['bloomedUsername']);
                             if(self.debug) console.log(str);
 
                             conversation.ask(str, [
@@ -123,12 +123,13 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
         if(self.useRandomEmail) {
             var randomName = Math.floor(Math.random() * 1000) + 1;
             var split = currentUser.email.split('@');
-            email = split[0] + '+' + randomName + '@' + split[1];
+            email = split[0] + '+' + Date.now() + '@' + split[1];
         }
 
         if (text.toLowerCase().match('^[m|f]$')) {
             var gender = text.toUpperCase();
             currentUser['gender'] = gender;
+            currentUser['bloomedUsername'] = email;
             self.atmanWrapper.createCandidate(email, currentUser.first_name, currentUser.last_name, gender, 'en-us').then(
                 function(success) {
                     var authKey = success.body;
