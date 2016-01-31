@@ -4,12 +4,14 @@ var Botkit = require('botkit');
 var Convo = require('./src/Convo.js');
 var AtmanWrapper = require('./src/AtmanWrapper');
 var UsersList = require('./src/UsersList.js');
+var MessageFormatter = require('./src/MsgFormatter.js');
 
 // Get Server Config
 var botToken = config.get('botToken');
 var slackApiToken = config.get('slackApiToken');
 var authToken = config.get('authToken');
 var atmanApiUrl = config.get('atmanApiUrl');
+
 
 console.log("\n" + "Current config:");
 console.log("Bot token: " + botToken);
@@ -22,6 +24,7 @@ var controller = Botkit.slackbot();
 var bot = controller.spawn({ token: botToken});
 var usersList = new UsersList();
 var convo = new Convo(bot, usersList, authToken, atmanApiUrl);
+var msgFormatter = new MessageFormatter();
 
 var getUsers = function(status, response) {
 	console.log(status);
@@ -47,6 +50,11 @@ controller.hears(['hello','hi'],['direct_message','direct_mention','mention'],fu
 
 controller.hears(['help'],['direct_message','direct_mention','mention'],function(bot,message) {
 	bot.reply(message,"How to use me : type 'invite' to invite all people on the channel to start the test.");
+});
+
+controller.hears(['team'],['direct_message'],function(bot,message) {
+	const msg = msgFormatter.getEasterEgg();
+	bot.reply(message, msg);
 });
 
 controller.hears(['start'],['direct_message'],function(bot,message) {
