@@ -1,6 +1,8 @@
 var SlackBot = require('slackbots');
 var config = require('config');
 var Convo = require('./src/Convo.js');
+var request = require('request');
+var AtmanWrapper = require('./src/AtmanWrapper');
 var UsersList = require('./src/UsersList.js');
 
 // Get Server Config
@@ -17,14 +19,14 @@ console.log("Bot token: " + botToken);
 console.log("Bot name: " + botName);
 console.log("Test user: " + testUser + "\n");
 
-
+var wrapper = new AtmanWrapper(request);
 var Botkit = require('botkit');
 var controller = Botkit.slackbot();
 var bot = controller.spawn({
 	token: botToken
 });
 var usersList = new UsersList();
-var convo = new Convo(bot, usersList);
+var convo = new Convo(bot, usersList, wrapper);
 
 var getUsers = function(status, response){
 	console.log(status);
@@ -39,7 +41,7 @@ bot.startRTM(function(err,bot,payload) {
 		throw new Error('Could not connect to Slack');
 	}
 	else {
-		console.log('Connected to bot ' + this.name);
+		console.log('Connected to bot ' + botName);
 	}
 });
 

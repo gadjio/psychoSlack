@@ -1,100 +1,127 @@
+var AtmanWrapper = require('./AtmanWrapper');
+var MessageFormatter = require('./MsgFormatter');
+var request = require('request');
+
 function Convo(bot, usersList) {
     this.bot = bot;
-    this.usersList = usersList;
+    this.usersList = usersList.usersList;
+    this.messageFormatter = new MessageFormatter();
+    this.atmanWrapper = new AtmanWrapper(request);
 }
 
 Convo.prototype.start = function(message) {
-    if (this.usersList.getGender(message.user) === "undef") {
-      this.askQuestion(message); // Check if you need to kill current convo conversation.next()
+    console.log('start');
+    var self = this;
+    this.bot.startConversation(message, function (err, conversation) {
+        self.ask(conversation, message.user);
+    })
+};
+
+Convo.prototype.ask = function(conversation, user) {
+    console.log('ask');
+    var self = this;
+    var question = 'Male or Female?';
+    if (self.usersList[user].hasOwnProperty('gender')) {
+        self.atmanWrapper.getQuestion(self.usersList[user]['authKey'], 'en-us').then(
+            function(success) {
+
+                var assessmentQuestion = JSON.parse(success.body);
+                var questionId = assessmentQuestion.questionId;
+                self.usersList[user]['questionId'] = questionId;
+                console.log(questionId);
+
+                //var str = this.messageFormatter.formatQuestion(assessmentQuestion);
+                //console.log(str);
+                //console.log(assessmentQuestion.assessmentQuestion);
+                conversation.ask(assessmentQuestion.assessmentQuestion, [
+                    {
+                        pattern: '.*',
+                        callback: function(response, conversation) {
+                            self.askHandler(self, response, conversation);
+                            conversation.next();
+                            console.log('next');
+                        }
+                    }
+                ]);
+            }
+        );
     } else {
-      this.askGender(message);
+        conversation.ask(question, [
+            {
+                pattern: '.*',
+                callback: function(response, conversation) {
+                    self.askHandler(self, response, conversation);
+                    conversation.next();
+                    console.log('next');
+                }
+            }
+        ]);
     }
 };
 
-Convo.prototype.askQuestionCallback = function(answer) {
-    return {
-        pattern: answer,
-        callback: function(response,conversation) {
+Convo.prototype.askHandler = function(self, response, conversation) {
+    console.log('askHandler');
+    var text = response.text;
+    if(!self.usersList[response.user].hasOwnProperty('gender')) {
 
-            if (answer === '[a|A]') {
-                // sendReponse(userId, 'a');
-            } else if(answer === "[b|B]") {
-                // sendReponse(userId, 'b');
-            } else if(answer === "[c|C]") {
-                // sendReponse(userId, 'c');
-            } else if(answer === "[s|S]") {
-                // skip('f');
-            } else {
-                conversation.say("\"" + answer + "\" is not a valid response" );
-                conversation.repeat();
-                conversation.next();
-            }
-        }
-    };
-};
+        var randomName = Math.floor(Math.random() * 1000) + 1;
+        var email = 'test' + randomName + '@gmail.com';
 
-Convo.prototype.askQuestion = function(message) {
-    var self = this;
-    // var question = GetQuestion();
-
-    var question = 'Le hackaton est ben fun.\n A) je suis daccord \nB) pas daccord \nC) incertain \nD) passer ';
-
-    // start a conversation to handle this response.
-    this.bot.startConversation(message, function (err, conversation) {
-        conversation.ask(question, [
-            self.askQuestionCallback('[a|A]'),
-            self.askQuestionCallback('[b|B]'),
-            self.askQuestionCallback('[c|C]'),
-            self.askQuestionCallback('[s|S]'),
-            self.errCallback(true)
-        ]);
-    })
-};
-
-Convo.prototype.askGender = function(message) {
-    var self = this;
-    var question = 'Male or Female? ';
-
-    // start a conversation to handle this response.
-    this.bot.startConversation(message, function (err, conversation) {
-        conversation.ask(question, [
-            self.askGenderCallback('[f|F]'),
-            self.askGenderCallback('[m|M]'),
-            self.errCallback(true)
-        ]);
-    })
-};
-
-Convo.prototype.askGenderCallback = function(answer) {
-    var self = this;
-    return {
-        pattern: answer,
-        callback: function(response, conversation) {
-
-            if (answer === '[m|M]') {
-                self.usersList.setGender(response.user, "Male");
-                self.askQuestion(response);
-            } else if(answer === "[f|F]") {
-                self.usersList.setGender(response.user, "Female");
-                self.askQuestion(response);
-            } else {
-                conversation.say("\"" + answer + "\" is not a valid response" );
-                conversation.repeat();
-                conversation.next();
-            }
-        }
-    };
-};
-
-Convo.prototype.errCallback = function(answer) {
-    return {
-        default: true,
-        callback: function(response, conversation) {
+        if (text.toLowerCase().match('m')) {
+            self.usersList[response.user]['gender'] = "Male";
+            self.atmanWrapper.createCandidate(email, 'marc', 'beaudry', 'M', 'en').then(
+                function(success) {
+                    var authKey = success.body;
+                    self.usersList[response.user]['authKey'] = authKey;
+                    console.log(authKey);
+                    self.ask(conversation, response.user);
+                }, function(failure) {
+                    self.ask(conversation, response.user);
+                }
+            );
+        } else if (text.toLowerCase().match('f')) {
+            self.usersList[response.user]['gender'] = "Female";
+            self.atmanWrapper.createCandidate(email, 'marc', 'beaudry', 'F', 'en').then(
+                function(success) {
+                    var authKey = success.body;
+                    self.usersList[response.user]['authKey'] = authKey;
+                    console.log(authKey);
+                    self.ask(conversation, response.user);
+                }, function(failure) {
+                    self.ask(conversation, response.user);
+                }
+            );
+        } else {
             conversation.say("Sorry I did not quite get that");
-            conversation.repeat();
-            conversation.next();
+            self.ask(conversation, response.user);
         }
-    };
+    } else {
+        if (text.toLowerCase().match('a')) {
+            console.log('Answered a');
+            //authKey, questionId, answer, languageCode
+            self.atmanWrapper.answerQuestion(
+                self.usersList[response.user]['authKey'],
+                self.usersList[response.user]['questionId'], 'A', 'en-us').then(
+                function(success) {
+                    var authKey = success.body;
+                    console.log(authKey);
+                    self.ask(conversation, response.user);
+                }, function(failure) {
+                    self.ask(conversation, response.user);
+                }
+            );
+        } else if (text.toLowerCase().match('b')) {
+            console.log('Answered b');
+        } else if (text.toLowerCase().match('c')) {
+            console.log('Answered c');
+        } else if (text.toLowerCase().match('z')) {
+            console.log('Answered z');
+        } else {
+            conversation.say("Sorry I did not quite get that");
+        }
+        self.ask(conversation, response.user);
+    }
+
 };
 
 module.exports = Convo;

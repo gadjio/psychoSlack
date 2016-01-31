@@ -7,7 +7,7 @@ UsersList.prototype.loadUsersList = function(usersListResponse){
 
     for (i = 0; i < usersListResponse.members.length; i += 1) {
         this.usersList[usersListResponse.members[i].id] = usersListResponse.members[i].profile;
-        this.usersList[usersListResponse.members[i].gender] = "undef";
+        // this.usersList[usersListResponse.members[i].gender] = "undef";
     }
 };
 
