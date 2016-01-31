@@ -111,8 +111,7 @@ Convo.prototype.getIntroMessage = function(user, requestingUserId) {
             this.usersList[requestingUserId].real_name +
             " invited you to complete a personality test.\n";
     } else {
-        introBegin = "We are glad to see you’re eager to learn more about your innate skills with this personality test! " +
-            this.usersList[requestingUserId].real_name
+        introBegin = "We are glad to see you’re eager to learn more about your innate skills with this personality test! "
     }
 
     return introBegin +
