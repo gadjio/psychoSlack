@@ -13,7 +13,6 @@ function Convo(bot, usersList) {
 
 Convo.prototype.startFromInvite = function(dm, userId) {
     console.log('start from invite');
-
     this.askQuestion(dm, userId);
 
 };
@@ -83,8 +82,10 @@ Convo.prototype.askQuestion = function(conversation, user) {
         );
     } else {
         // we ask the gender
-        conversation.say(this.getIntroMessage(user));
-
+        if(!self.usersList[user].hasOwnProperty('saidIntro')) {
+            conversation.say(this.getIntroMessage(user));
+            self.usersList[user]['saidIntro'] = true;
+        }
         var formatter = new MessageFormatter();
         var str = formatter.getGenderQuestion();
         if(self.debug) console.log(str);
