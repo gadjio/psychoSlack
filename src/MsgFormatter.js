@@ -7,7 +7,6 @@
 
     MessageFormatter.prototype.formatQuestion = function(JSONquestion) {
 
-        console.log('formatQuestion');
         var possibleAnswers = JSONquestion.assessmentAnswer;
         possibleAnswers = possibleAnswers.map(function(answer) {
             return {
@@ -52,7 +51,6 @@
 
     MessageFormatter.prototype.getGenderQuestion = function() {
 
-        console.log('formatQuestion');
         var possibleAnswers = [
             {"value":"M","text":"Male","isDisabled":false},
             {"value":"F","text":"Female","isDisabled":false}

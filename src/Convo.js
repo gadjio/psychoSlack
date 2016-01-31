@@ -3,13 +3,14 @@ var MessageFormatter = require('./MsgFormatter');
 var request = require('request');
 
 function Convo(bot, usersList) {
+    this.debug = false;
     this.bot = bot;
     this.usersList = usersList.usersList;
-    this.atmanWrapper = new AtmanWrapper(request);
+    this.atmanWrapper = new AtmanWrapper(request, this.debug);
 }
 
 Convo.prototype.start = function(message) {
-    console.log('start');
+    if(this.debug) console.log('start');
     var self = this;
     this.bot.startConversation(message, function (err, conversation) {
         self.askQuestion(conversation, message.user);
@@ -17,19 +18,8 @@ Convo.prototype.start = function(message) {
 };
 
 Convo.prototype.askQuestion = function(conversation, user) {
-    console.log('askQuestion');
+    if(this.debug) console.log('askQuestion');
     var self = this;
-
-    //if (user in self.usersList){
-    //    var usersOptions = {
-    //        token: token,
-    //        user: user
-    //    };
-    //
-    //    bot.api.users.info(usersOptions, function (err, response) {
-    //        self.usersList.load(response)
-    //    });
-    //}
 
     if (self.usersList[user].hasOwnProperty('gender')) {
 
@@ -43,11 +33,11 @@ Convo.prototype.askQuestion = function(conversation, user) {
                 if(assessmentQuestion.assessmentQuestion != null) {
                     var questionId = assessmentQuestion.questionId;
                     self.usersList[user]['questionId'] = questionId;
-                    console.log(questionId);
+                    if(self.debug) console.log(questionId);
 
                     var formatter = new MessageFormatter();
                     var str = formatter.formatQuestion(assessmentQuestion);
-                    console.log(str);
+                    if(self.debug) console.log(str);
                     conversation.ask(str, [
                         {
                             pattern: '.*',
@@ -65,7 +55,7 @@ Convo.prototype.askQuestion = function(conversation, user) {
                             var skills = JSON.parse(success.body);
                             var formatter = new MessageFormatter();
                             var str = formatter.formatResult(skills);
-                            console.log(str);
+                            if(self.debug) console.log(str);
 
                             conversation.ask(str, [
                                 {
@@ -86,7 +76,7 @@ Convo.prototype.askQuestion = function(conversation, user) {
         // we ask the gender
         var formatter = new MessageFormatter();
         var str = formatter.getGenderQuestion();
-        console.log(str);
+        if(self.debug) console.log(str);
         conversation.ask(str, [
             {
                 pattern: '.*',
@@ -100,32 +90,22 @@ Convo.prototype.askQuestion = function(conversation, user) {
 };
 
 Convo.prototype.userInputHandler = function(self, response, conversation) {
-    console.log('userInputHandler');
+    if(this.debug) console.log('userInputHandler');
     var text = response.text;
-    if(!self.usersList[response.user].hasOwnProperty('gender')) {
+    var currentUser = self.usersList[response.user];
+    if(!currentUser.hasOwnProperty('gender')) {
 
         var randomName = Math.floor(Math.random() * 1000) + 1;
         var email = 'test' + randomName + '@gmail.com';
 
-        if (text.toLowerCase().match('m')) {
-            self.usersList[response.user]['gender'] = "Male";
-            self.atmanWrapper.createCandidate(email, 'marc', 'beaudry', 'M', 'en').then(
+        if (text.toLowerCase().match('^[m|f]$')) {
+            var gender = text.toUpperCase();
+            currentUser['gender'] = gender;
+            self.atmanWrapper.createCandidate(email, 'marc', 'beaudry', gender, 'en-us').then(
                 function(success) {
                     var authKey = success.body;
-                    self.usersList[response.user]['authKey'] = authKey;
-                    console.log(authKey);
-                    self.askQuestion(conversation, response.user);
-                }, function(failure) {
-                    self.askQuestion(conversation, response.user);
-                }
-            );
-        } else if (text.toLowerCase().match('f')) {
-            self.usersList[response.user]['gender'] = "Female";
-            self.atmanWrapper.createCandidate(email, 'marc', 'beaudry', 'F', 'en').then(
-                function(success) {
-                    var authKey = success.body;
-                    self.usersList[response.user]['authKey'] = authKey;
-                    console.log(authKey);
+                    currentUser['authKey'] = authKey;
+                    if(self.debug) console.log(authKey);
                     self.askQuestion(conversation, response.user);
                 }, function(failure) {
                     self.askQuestion(conversation, response.user);
@@ -136,15 +116,15 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
             self.askQuestion(conversation, response.user);
         }
     } else {
-        if (text.toLowerCase().match('[a|b|c|z]')) {
-            console.log('Answered a');
-            //authKey, questionId, answer, languageCode
+        if (text.toLowerCase().match('^[a|b|c|z]$')) {
+            if(self.debug) console.log('Answered');
+
             self.atmanWrapper.answerQuestion(
-                self.usersList[response.user]['authKey'],
-                self.usersList[response.user]['questionId'], text.toUpperCase(), 'en-us').then(
+                currentUser['authKey'],
+                currentUser['questionId'], text.toUpperCase(), 'en-us').then(
                 function(success) {
                     var authKey = success.body;
-                    console.log(authKey);
+                    if(self.debug) console.log(authKey);
                     self.askQuestion(conversation, response.user);
                 }, function(failure) {
                     self.askQuestion(conversation, response.user);

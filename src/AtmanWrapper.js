@@ -1,4 +1,5 @@
-function AtmanWrapper(request) {
+function AtmanWrapper(request, debug) {
+    this.debug = debug;
     this.request = request;
     this.authorization = 'Basic cGhpbGlwcGUuZ3JhbmRtb250QGdtYWlsLmNvbTpoTlV1ajI=';
     this.createCandidateUrl = 'https://sandbox.atmanco.com/api/v1/CreateCandidate';
@@ -14,7 +15,7 @@ AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
 };
 
 AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, gender, language) {
-    console.log("createCandidate");
+    if(this.debug) console.log("createCandidate");
     var self = this;
 
     return new Promise(function(success, failure) {
@@ -40,16 +41,16 @@ AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, g
             }
         };
 
-        console.log('before request createCandidate');
+        if(self.debug) console.log('before request createCandidate');
         self.request(options, function (error, response, body) {
-            console.log("createCandidate received");
-            console.log(response.statusCode);
-            console.log(body);
+            if(self.debug) console.log("createCandidate received");
+            if(self.debug) console.log(response.statusCode);
+            if(self.debug) console.log(body);
             if (!error && response.statusCode == '200') {
-                console.log("createCandidate ok");
+                if(self.debug) console.log("createCandidate ok");
                 success({body:body});
             } else {
-                console.log("createCandidate error");
+                if(this.debug) console.log("createCandidate error");
                 failure(null);
             }
         });
@@ -58,7 +59,7 @@ AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, g
 
 AtmanWrapper.prototype.getQuestion = function (authKey, languageCode) {
 
-    console.log("getQuestion");
+    if(this.debug) console.log("getQuestion");
     var self = this;
 
     return new Promise(function(success, failure) {
@@ -77,16 +78,16 @@ AtmanWrapper.prototype.getQuestion = function (authKey, languageCode) {
             }
         };
 
-        console.log('before request getQuestion');
+        if(self.debug) console.log('before request getQuestion');
         self.request(options, function (error, response, body) {
-            console.log("response received getQuestion");
-            console.log(response.statusCode);
-            console.log(body);
+            if(self.debug) console.log("response received getQuestion");
+            if(self.debug) console.log(response.statusCode);
+            if(self.debug) console.log(body);
             if (!error && response.statusCode == '200') {
-                console.log("getQuestion ok");
+                if(self.debug) console.log("getQuestion ok");
                 success({body:body});
             } else {
-                console.log("getQuestion error");
+                if(self.debug) console.log("getQuestion error");
                 failure(null);
             }
         });
@@ -95,7 +96,7 @@ AtmanWrapper.prototype.getQuestion = function (authKey, languageCode) {
 
 AtmanWrapper.prototype.answerQuestion = function (authKey, questionId, answer, languageCode) {
 
-    console.log("answerQuestion");
+    if(this.debug) console.log("answerQuestion");
     var self = this;
 
     return new Promise(function(success, failure) {
@@ -116,14 +117,14 @@ AtmanWrapper.prototype.answerQuestion = function (authKey, questionId, answer, l
             }
         };
 
-        console.log('before request answerQuestion');
+        if(self.debug) console.log('before request answerQuestion');
         self.request(options, function (error, response, body) {
-            console.log("answerQuestion received");
+            if(self.debug) console.log("answerQuestion received");
             if (!error && response.statusCode == '200') {
-                console.log("answerQuestion ok");
+                if(self.debug) console.log("answerQuestion ok");
                 success({body:body});
             } else {
-                console.log("answerQuestion error");
+                if(self.debug) console.log("answerQuestion error");
                 failure(null);
             }
         });
@@ -131,7 +132,7 @@ AtmanWrapper.prototype.answerQuestion = function (authKey, questionId, answer, l
 };
 
 AtmanWrapper.prototype.getSkills = function (authKey) {
-    console.log("getSkills");
+    if(this.debug) console.log("getSkills");
     var self = this;
 
     return new Promise(function(success, failure) {
@@ -150,14 +151,14 @@ AtmanWrapper.prototype.getSkills = function (authKey) {
             }
         };
 
-        console.log('before request getSkills');
+        if(self.debug) console.log('before request getSkills');
         self.request(options, function (error, response, body) {
-            console.log("getSkills received");
+            if(self.debug) console.log("getSkills received");
             if (!error && response.statusCode == '200') {
-                console.log("getSkills ok");
+                if(self.debug) console.log("getSkills ok");
                 success({body:body});
             } else {
-                console.log("getSkills error");
+                if(self.debug) console.log("getSkills error");
                 failure(null);
             }
         });
@@ -165,7 +166,7 @@ AtmanWrapper.prototype.getSkills = function (authKey) {
 };
 
 AtmanWrapper.prototype.candidateAuthentication = function (email) {
-    console.log("candidateAuthentication");
+    if(this.debug) console.log("candidateAuthentication");
     var self = this;
 
     return new Promise(function(success, failure) {
@@ -184,14 +185,14 @@ AtmanWrapper.prototype.candidateAuthentication = function (email) {
             }
         };
 
-        console.log('before request candidateAuthentication');
+        if(self.debug) console.log('before request candidateAuthentication');
         self.request(options, function (error, response, body) {
-            console.log("candidateAuthentication received");
+            if(self.debug) console.log("candidateAuthentication received");
             if (!error && response.statusCode == '200') {
-                console.log("candidateAuthentication ok");
+                if(self.debug) console.log("candidateAuthentication ok");
                 success({body:body});
             } else {
-                console.log("candidateAuthentication error");
+                if(self.debug) console.log("candidateAuthentication error");
                 failure(null);
             }
         });
@@ -200,7 +201,7 @@ AtmanWrapper.prototype.candidateAuthentication = function (email) {
 
 
 AtmanWrapper.prototype.getCandidateState = function (authKey) {
-    console.log("GetCandidateState");
+    if(this.debug) console.log("GetCandidateState");
     var self = this;
 
     return new Promise(function(success, failure) {
@@ -218,20 +219,17 @@ AtmanWrapper.prototype.getCandidateState = function (authKey) {
             }
         };
 
-        console.log('before request GetCandidateState');
+        if(self.debug) console.log('before request GetCandidateState');
         self.request(options, function (error, response, body) {
-            console.log("GetCandidateState received");
+            if(self.debug) console.log("GetCandidateState received");
             if (!error && response.statusCode == '200') {
-                console.log("GetCandidateState ok");
+                if(self.debug) console.log("GetCandidateState ok");
                 success({body:body});
             } else {
-                console.log("GetCandidateState error");
+                if(self.debug) console.log("GetCandidateState error");
                 failure(null);
             }
         });
     });
 };
-
-
-
 module.exports = AtmanWrapper;
