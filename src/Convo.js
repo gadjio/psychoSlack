@@ -3,6 +3,7 @@ var MessageFormatter = require('./MsgFormatter');
 var request = require('request');
 
 function Convo(bot, usersList) {
+    this.useRandomEmail = true;
     this.debug = false;
     this.bot = bot;
     this.usersListObj = usersList;
@@ -57,6 +58,7 @@ Convo.prototype.askQuestion = function(conversation, user) {
                     conversation.next();
                 } else {
 
+                    conversation.say("Please wait while we process your answers...");
                     self.atmanWrapper.getSkills(self.usersList[user]['authKey']).then(
 
                         function(success) {
@@ -103,7 +105,6 @@ Convo.prototype.askQuestion = function(conversation, user) {
 
 Convo.prototype.getIntroMessage = function(user){
     var fullName = this.usersListObj.getFullName(user);
-
     return "Salut " + fullName + "!!! Bonne chan le gran";
 };
 
@@ -114,13 +115,17 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
     var currentUser = self.usersList[response.user];
     if(!currentUser.hasOwnProperty('gender')) {
 
-        var randomName = Math.floor(Math.random() * 1000) + 1;
-        var email = 'test' + randomName + '@gmail.com';
+        var email = currentUser.email;
+        if(self.useRandomEmail) {
+            var randomName = Math.floor(Math.random() * 1000) + 1;
+            var split = currentUser.email.split('@');
+            email = split[0] + '+' + randomName + '@' + split[1];
+        }
 
         if (text.toLowerCase().match('^[m|f]$')) {
             var gender = text.toUpperCase();
             currentUser['gender'] = gender;
-            self.atmanWrapper.createCandidate(email, 'marc', 'beaudry', gender, 'en-us').then(
+            self.atmanWrapper.createCandidate(email, currentUser.first_name, currentUser.last_name, gender, 'en-us').then(
                 function(success) {
                     var authKey = success.body;
                     currentUser['authKey'] = authKey;
