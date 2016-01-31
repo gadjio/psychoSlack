@@ -2,13 +2,13 @@ var AtmanWrapper = require('./AtmanWrapper');
 var MessageFormatter = require('./MsgFormatter');
 var request = require('request');
 
-function Convo(bot, usersList) {
+function Convo(bot, usersList, authToken, atmanApiUrl) {
     this.useRandomEmail = true;
     this.debug = false;
     this.bot = bot;
     this.usersListObj = usersList;
     this.usersList = usersList.usersList;
-    this.atmanWrapper = new AtmanWrapper(request, this.debug);
+    this.atmanWrapper = new AtmanWrapper(request, authToken, atmanApiUrl, this.debug);
 }
 
 

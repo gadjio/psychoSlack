@@ -30,6 +30,11 @@
             ? "#f5ed18"
             : "#f52d18";
 
+        var temp = JSONquestion.localizedNumberOfB.toString();
+        console.log(temp);
+        var test = temp.substring(0, temp.indexOf('of'));
+        console.log(test);
+
         return {
             "text" : "",
             "attachments": [
@@ -41,7 +46,7 @@
                     "text": possibleAnswers
                 },
                 {
-                    "text" : JSONquestion.localizedNumberOfB,
+                    "text" : test,
                     "color" : remainingBColor
                 }
             ]

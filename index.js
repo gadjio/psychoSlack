@@ -1,55 +1,44 @@
-var SlackBot = require('slackbots');
 var config = require('config');
-var Convo = require('./src/Convo.js');
 var request = require('request');
+var Botkit = require('botkit');
+var Convo = require('./src/Convo.js');
 var AtmanWrapper = require('./src/AtmanWrapper');
 var UsersList = require('./src/UsersList.js');
 
 // Get Server Config
 var botToken = config.get('botToken');
-var botName = config.get('botName');
-var testUser = config.get('testUser');
-
-var optionToken = 'xoxp-19879990401-19874729492-19892570103-995c3fc727'
-var options = {
-	token: optionToken,
-};
-
-var invitationMessage ="Hello there!, " + Date.now();
-//var invitationMessage ="Hello there!, You have been invited to do Atman assessment"
-
+var slackApiToken = config.get('slackApiToken');
+var authToken = config.get('authToken');
+var atmanApiUrl = config.get('atmanApiUrl');
 
 console.log("\n" + "Current config:");
-console.log("Bot optionToken: " + botToken);
-console.log("Bot name: " + botName);
-console.log("Test user: " + testUser + "\n");
+console.log("Bot token: " + botToken);
+console.log("Slack api token: " + slackApiToken);
+console.log("Authentification token: " + authToken);
+console.log("Atman api url: " + atmanApiUrl);
+console.log("\n");
 
-var wrapper = new AtmanWrapper(request);
-var Botkit = require('botkit');
 var controller = Botkit.slackbot();
-var bot = controller.spawn({
-	token: botToken
-});
+var bot = controller.spawn({ token: botToken});
 var usersList = new UsersList();
-var convo = new Convo(bot, usersList, wrapper);
+var convo = new Convo(bot, usersList, authToken, atmanApiUrl);
 
-var getUsers = function(status, response){
+var getUsers = function(status, response) {
 	console.log(status);
 	//console.log(response);
 	usersList.loadUsersList(response);
 };
 
-bot.api.users.list(options, getUsers); // Load users list
+bot.api.users.list( {token: botToken }, getUsers); // Load users list
 
-bot.startRTM(function(err,bot,payload) {
+bot.startRTM(function(err, bot, payload) {
 	if (err) {
 		throw new Error('Could not connect to Slack');
 	}
 	else {
-		console.log('Connected to bot ' + botName);
+		console.log('Bot connected');
 	}
 });
-
 
 controller.hears(['hello','hi'],['direct_message','direct_mention','mention'],function(bot,message) {
 	bot.reply(message,"Hello.");
@@ -98,13 +87,9 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 							console.log("userId : " + response.user.id);
 
 							convo.startFromInvite(dm, response.user.id)
-
 						});
 					}
-
 				});
-
-
 			}
 		}
 	};
@@ -113,7 +98,6 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 		token: optionToken,
 		channel: message.channel
 	};
-
 
 	console.log("bot.api.channels.info : ");
 	bot.api.channels.info( options, callBackChannelInfo );
