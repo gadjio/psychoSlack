@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/psychoSlack.iml" filepath="$PROJECT_DIR$/.idea/psychoSlack.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/PsychoSlack.iml" filepath="$PROJECT_DIR$/.idea/PsychoSlack.iml" />
     </modules>
   </component>
 </project>
