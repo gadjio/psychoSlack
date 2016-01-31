@@ -52,29 +52,47 @@
 
     MessageFormatter.prototype.formatResult = function(JSONResult) {
 
-        var improviserURL = "https://files.slack.com/files-tmb/T0KRVV4BT-F0KSE284T-15622fe05f/trophy_360.png";
-        var qualityControllerURL = "https://files.slack.com/files-tmb/T0KRVV4BT-F0KSH27JT-deb2e4c0fd/star_360.png";
-        var hardHeadedURL = "https://files.slack.com/files-tmb/T0KRVV4BT-F0KSHV5FS-6a3e0dd186/thumbs_up_360.png";
-        var sprinterURL = "https://files.slack.com/files-tmb/T0KRVV4BT-F0KSHV5A4-925d148edd/rocket_360.png";
-        var cocoonedURL = "https://files.slack.com/files-tmb/T0KRVV4BT-F0KSH1XV0-eefcf60540/smiley_360.png";
+        var picturesDictionary =  [];
 
+        var improviserURL = "http://imageshack.com/a/img921/4349/JHfyTi.png";
+        var qualityControllerURL = "http://imageshack.com/a/img922/3301/Wk9Kr0.png";
+        var hardHeadedURL = "http://imageshack.com/a/img923/9121/52W7NB.png";
+        var sprinterURL = "http://imageshack.com/a/img922/7804/aaY0LL.png";
+        var cocoonedURL = "http://imageshack.com/a/img924/452/cs6qPf.png";
+
+        picturesDictionary.push(improviserURL);
+        picturesDictionary.push(qualityControllerURL);
+        picturesDictionary.push(hardHeadedURL);
+        picturesDictionary.push(sprinterURL);
+        picturesDictionary.push(cocoonedURL);
+
+        const PRETEXT = "CONGRATS! You have completed your personality test. Here are your top skills. Ready to see what you're made of?";
+
+        var attachments = [];
+        attachments.push({
+            "color": "#DE9E31",
+            "pretext": PRETEXT
+        });
+
+
+        var relatedSkills = JSONResult.relatedSkills;
+        var counter = 0;
+        relatedSkills = relatedSkills
+            .map(function(msg) {
+                return {
+                    "color": "#1ecd26",
+                    "text" : " *" + msg.name + "* - " + msg.description[0] + " " + msg.description[1],
+                    "mrkdwn_in": ["text"],
+                    "thumb_url" : picturesDictionary[counter++]
+                };
+            }).forEach(function(item) {
+                attachments.push(item);
+            });
 
 
         return {
             "text" : "",
-            "attachments": [
-                {
-                    "fallback": fallback,
-                    "color": "#DE9E31",
-                    "pretext": numberOfQuestionsRemaining,
-                    "title": JSONquestion.assessmentQuestion,
-                    "text": possibleAnswers
-                },
-                {
-                    "text" : JSONquestion.localizedNumberOfB,
-                    "color" : remainingBColor
-                }
-            ]
+            "attachments": attachments
         };
     };
 
