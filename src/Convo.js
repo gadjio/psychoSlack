@@ -148,7 +148,7 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
                 }
             );
         } else {
-            conversation.say("Sorry, you selected an invalid gender");
+            conversation.say("This test was created for human beings only! Please type M for male, or F for female");
             self.askQuestion(conversation, response.user);
         }
     } else {
@@ -167,7 +167,7 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
                 }
             );
         } else {
-            conversation.say("Sorry, you selected an invalid option");
+            conversation.say("Please type A, B, or C according to your answer.");
             self.askQuestion(conversation, response.user);
         }
     }
