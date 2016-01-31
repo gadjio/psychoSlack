@@ -103,7 +103,7 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
             //authKey, questionId, answer, languageCode
             self.atmanWrapper.answerQuestion(
                 self.usersList[response.user]['authKey'],
-                self.usersList[response.user]['questionId'], 'A', 'en-us').then(
+                self.usersList[response.user]['questionId'], text.toUpperCase(), 'en-us').then(
                 function(success) {
                     var authKey = success.body;
                     console.log(authKey);
