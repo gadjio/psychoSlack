@@ -6,8 +6,8 @@ function Convo(bot, usersList) {
 var AtmanWrapper = require('./AtmanWrapper');
 
 Convo.prototype.start = function(message) {
-    if (this.usersList.getGender(message.user) === "undef") {
-      this.askQuestion(message); // Check if you need to kill current convo conversation.next()
+    if (this.usersList.getGender(message.user)) {
+      this.askQuestion(message);
     } else {
       this.askGender(message);
     }
@@ -28,9 +28,21 @@ Convo.prototype.askQuestionCallback = function(answer) {
                 // skip('f');
             } else {
                 conversation.say("\"" + answer + "\" is not a valid response" );
-                conversation.repeat();
                 conversation.next();
+                self.askQuestion(message);
             }
+        }
+    };
+};
+
+Convo.prototype.errAskQuestionCallback = function(answer) {
+    self = this;
+    return {
+        default: true,
+        callback: function(response, conversation) {
+            conversation.say("Sorry I did not quite get that");
+            conversation.next();
+            self.askQuestion(message);
         }
     };
 };
@@ -117,7 +129,7 @@ Convo.prototype.askQuestion = function(message) {
             self.askQuestionCallback('[b|B]'),
             self.askQuestionCallback('[c|C]'),
             self.askQuestionCallback('[s|S]'),
-            self.errCallback(true)
+            self.errAskQuestionCallback(true)
         ]);
     })
 };
@@ -131,7 +143,7 @@ Convo.prototype.askGender = function(message) {
         conversation.ask(question, [
             self.askGenderCallback('[f|F]'),
             self.askGenderCallback('[m|M]'),
-            self.errCallback(true)
+            self.errAskGenderCallback(true)
         ]);
     })
 };
@@ -149,6 +161,7 @@ Convo.prototype.askGenderCallback = function(answer) {
                 self.usersList.setGender(response.user, "Female");
                 self.askQuestion(response);
             } else {
+                console.log("wtf");
                 conversation.say("\"" + answer + "\" is not a valid response" );
                 conversation.repeat();
                 conversation.next();
@@ -157,10 +170,11 @@ Convo.prototype.askGenderCallback = function(answer) {
     };
 };
 
-Convo.prototype.errCallback = function(answer) {
+Convo.prototype.errAskGenderCallback = function(answer) {
     return {
         default: true,
         callback: function(response, conversation) {
+            console.log("wtf2");
             conversation.say("Sorry I did not quite get that");
             conversation.repeat();
             conversation.next();
