@@ -1,13 +1,13 @@
-function AtmanWrapper(request, debug) {
+function AtmanWrapper(request, authToken, baseApiUrl, debug) {
     this.debug = debug;
     this.request = request;
-    this.authorization = 'Basic cGhpbGlwcGUuZ3JhbmRtb250QGdtYWlsLmNvbTpoTlV1ajI=';
-    this.createCandidateUrl = 'https://sandbox.atmanco.com/api/v1/CreateCandidate';
-    this.getQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
-    this.answerQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
-    this.getSkillsUrl = 'https://sandbox.atmanco.com/api/v1/GetSkills';
-    this.candidateAuthenticationUrl = 'https://sandbox.atmanco.com/api/v1/CandidateAuthentication';
-    this.getCandidateStateUrl = 'https://sandbox.atmanco.com/api/v1/GetCandidateState';
+    this.authorization = 'Basic ' + authToken;
+    this.createCandidateUrl = baseApiUrl + '/api/v1/CreateCandidate';
+    this.getQuestionUrl = baseApiUrl + '/api/v1/GetAssessmentInformation';
+    this.answerQuestionUrl = baseApiUrl + '/api/v1/GetAssessmentInformation';
+    this.getSkillsUrl = baseApiUrl + '/api/v1/GetSkills';
+    this.candidateAuthenticationUrl = baseApiUrl + '/api/v1/CandidateAuthentication';
+    this.getCandidateStateUrl = baseApiUrl + '/api/v1/GetCandidateState';
 };
 
 AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
