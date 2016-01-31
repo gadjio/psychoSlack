@@ -5,6 +5,7 @@ function AtmanWrapper(request) {
     this.getQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
     this.answerQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
     this.getSkillsUrl = 'https://sandbox.atmanco.com/api/v1/GetSkills';
+    this.candidateAuthenticationUrl = 'https://sandbox.atmanco.com/api/v1/CandidateAuthentication';
 };
 
 AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
@@ -156,6 +157,41 @@ AtmanWrapper.prototype.getSkills = function (authKey) {
                 success({body:body});
             } else {
                 console.log("getSkills error");
+                failure(null);
+            }
+        });
+    });
+};
+
+AtmanWrapper.prototype.candidateAuthentication = function (email) {
+    console.log("candidateAuthentication");
+    var self = this;
+
+    return new Promise(function(success, failure) {
+        var body = {
+            candidateEmail: email,
+            candidatePin    : "1234",
+            RequestInfo: self.getRequestInfoData(authKey)
+        };
+
+        var options = {
+            url: self.candidateAuthenticationUrl,
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Authorization': self.authorization,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        console.log('before request candidateAuthentication');
+        self.request(options, function (error, response, body) {
+            console.log("candidateAuthentication received");
+            if (!error && response.statusCode == '200') {
+                console.log("candidateAuthentication ok");
+                success({body:body});
+            } else {
+                console.log("candidateAuthentication error");
                 failure(null);
             }
         });
