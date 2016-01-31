@@ -46,9 +46,76 @@ bot.startRTM(function(err,bot,payload) {
 
 controller.hears(['hello','hi'],['direct_message','direct_mention','mention'],function(bot,message) {
 	bot.reply(message,"Hello.");
+	bot.reply(message, JSON.stringify( message.channel));
 });
 
-controller.hears(['start'],['direct_message','direct_mention','mention','ambient'],function(bot,message) {
+controller.hears(['help'],['direct_message','direct_mention','mention'],function(bot,message) {
+	bot.reply(message,"How to use me : type 'invite' to invite all people on the channel to start the test.");
+});
+
+controller.hears(['start'],['direct_message'],function(bot,message) {
 	convo.start(message);
 });
+
+controller.hears(['invite'],['direct_mention'],function(bot,message) {
+
+	var self = this;
+
+
+	var callBackChannelInfo = function(status, response){
+
+		if(status != undefined)
+		{
+			console.log('status :');
+			console.log(status);
+		}else
+		{
+			var devResponse = JSON.stringify(response)
+			console.log("channel.info : " + devResponse);
+			console.log("channel members : " + response.channel.members);
+
+			var total = response.channel.members.length;
+			for (var i = 0; i < total; i++) {
+				var userId = response.channel.members[i]
+				var usersOptions = {
+					token: 'xoxp-19879990401-19874729492-19892570103-995c3fc727',
+					user: userId
+				};
+
+				bot.api.users.info(usersOptions, function (err, response) {
+					if(response.user.is_bot){
+
+					}else{
+						var msg = {
+							user: response.user.id
+						};
+						bot.startPrivateConversation(msg, function(err, dm){
+
+							console.log(JSON.stringify(err));
+							dm.say("Bonne nuit ");
+						});
+					}
+
+				});
+
+
+			}
+		}
+	};
+
+	var options = {
+		token: 'xoxp-19879990401-19874729492-19892570103-995c3fc727',
+		channel: message.channel
+	};
+
+
+	console.log("bot.api.channels.info : ");
+	bot.api.channels.info( options, callBackChannelInfo );
+
+
+
+	bot.reply(message, JSON.stringify( message.channel));
+
+});
+
 
