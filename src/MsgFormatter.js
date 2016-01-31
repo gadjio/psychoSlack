@@ -50,6 +50,41 @@
 
     };
 
+    MessageFormatter.prototype.getGenderQuestion = function() {
+
+        console.log('formatQuestion');
+        var possibleAnswers = [
+            {"value":"M","text":"Male","isDisabled":false},
+            {"value":"F","text":"Female","isDisabled":false}
+        ];
+        possibleAnswers = possibleAnswers.map(function(answer) {
+            return {
+                question: answer.value + ":\t" + answer.text,
+                isDisabled: answer.isDisabled
+            }
+        }).filter(function(answer) {
+            return !answer.isDisabled;
+        }).map(function(answer) {
+            return answer.question;
+        }).reduce(function(a, b) {
+            return a + "\n" + b;
+        });
+
+        return {
+            "text" : "",
+            "attachments": [
+                {
+                    "fallback": '',
+                    "color": "#DE9E31",
+                    "pretext": '',
+                    "title": 'Please select your gender',
+                    "text": possibleAnswers
+                }
+            ]
+        };
+
+    };
+
     MessageFormatter.prototype.formatResult = function(JSONResult) {
 
         var picturesDictionary =  [];
