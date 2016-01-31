@@ -5,12 +5,19 @@ console.log('starting test');
 
 var wrapper = new AtmanWrapper(request);
 var languageCode = 'en-us';
-wrapper.CreateCandidate('test12324sss@gmail.com', 'Marc', 'Beaudry', 'M', languageCode).then(
+wrapper.createCandidate('test123242ss2ss@gmail.com', 'Marc', 'Beaudry', 'M', languageCode).then(
     //success callback
-    function(data, status) {
-        wrapper.GetQuestion(data, languageCode);
-    },
-    //failure callback
-    function(data, status) {
+    function(success) {
+        var authKey = success.body;
+        wrapper.getQuestion(authKey, languageCode).then(
+            //success callback
+            function(success) {
+                console.log("asdasd");
+                var assessmentQuestion = JSON.parse(success.body);
+                var questionId = assessmentQuestion.questionId;
+                console.log(questionId);
+                wrapper.test(authKey, questionId, 'A', languageCode);
+            }
+        )
     }
 );
