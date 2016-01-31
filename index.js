@@ -94,23 +94,10 @@ controller.hears(['invite'],['direct_mention'],function(bot,message) {
 							user: response.user.id
 						};
 						bot.startPrivateConversation(msg, function(err, dm){
-							console.log(JSON.stringify(err));
+							console.log("start conversation error : " + JSON.stringify(err));
+							console.log("userId : " + response.user.id);
 
-							dm.say(invitationMessage, function (err, response){
-								console.log(JSON.stringify(response));
-								convo.start(response);
-
-							});
-
-							//var dmMessage={
-							//	channel : dm.channel,
-							//	user : msg.user
-							//}
-                            //
-							//message.channel = dm.channel;
-							//message.user = msg.user;
-							//console.log(JSON.stringify(message));
-
+							convo.startFromInvite(dm, response.user.id)
 
 						});
 					}

@@ -5,9 +5,18 @@ var request = require('request');
 function Convo(bot, usersList) {
     this.debug = false;
     this.bot = bot;
+    this.usersListObj = usersList;
     this.usersList = usersList.usersList;
     this.atmanWrapper = new AtmanWrapper(request, this.debug);
 }
+
+
+Convo.prototype.startFromInvite = function(dm, userId) {
+    console.log('start from invite');
+
+    this.askQuestion(dm, userId);
+
+};
 
 Convo.prototype.start = function(message) {
     if(this.debug) console.log('start');
@@ -74,6 +83,8 @@ Convo.prototype.askQuestion = function(conversation, user) {
         );
     } else {
         // we ask the gender
+        conversation.say(this.getIntroMessage(user));
+
         var formatter = new MessageFormatter();
         var str = formatter.getGenderQuestion();
         if(self.debug) console.log(str);
@@ -88,6 +99,13 @@ Convo.prototype.askQuestion = function(conversation, user) {
         conversation.next();
     }
 };
+
+Convo.prototype.getIntroMessage = function(user){
+    var fullName = this.usersListObj.getFullName(user);
+
+    return "Salut " + fullName + "!!! Bonne chan le gran";
+};
+
 
 Convo.prototype.userInputHandler = function(self, response, conversation) {
     if(this.debug) console.log('userInputHandler');
