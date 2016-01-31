@@ -6,15 +6,14 @@ function Convo(bot, usersList, authToken, atmanApiUrl) {
     this.useRandomEmail = true;
     this.debug = false;
     this.bot = bot;
-    this.usersListObj = usersList;
     this.usersList = usersList.usersList;
     this.atmanWrapper = new AtmanWrapper(request, authToken, atmanApiUrl, this.debug);
 }
 
 
-Convo.prototype.startFromInvite = function(dm, userId) {
+Convo.prototype.startFromInvite = function(dm, userId, requestingUserId) {
     console.log('start from invite');
-    this.askQuestion(dm, userId);
+    this.askQuestion(dm, userId, requestingUserId);
 
 };
 
@@ -26,7 +25,7 @@ Convo.prototype.start = function(message) {
     });
 };
 
-Convo.prototype.askQuestion = function(conversation, user) {
+Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
     if(this.debug) console.log('askQuestion');
     var self = this;
 
@@ -85,7 +84,7 @@ Convo.prototype.askQuestion = function(conversation, user) {
     } else {
         // we ask the gender
         if(!self.usersList[user].hasOwnProperty('saidIntro')) {
-            conversation.say(this.getIntroMessage(user));
+            conversation.say(this.getIntroMessage(requestingUserId));
             self.usersList[user]['saidIntro'] = true;
         }
         var formatter = new MessageFormatter();
@@ -103,9 +102,14 @@ Convo.prototype.askQuestion = function(conversation, user) {
     }
 };
 
-Convo.prototype.getIntroMessage = function(user){
-    var fullName = this.usersListObj.getFullName(user);
-    return "Salut " + fullName + "!!! Bonne chan le gran";
+Convo.prototype.getIntroMessage = function(requestingUserId) {
+//    console.log(self.usersList[requestingUserId]);
+
+    //"We are glad to see you’re eager to learn more about your innate skills with this personality test!" @aboulay
+
+    return "Care to figure out your innate skills? [@person] invited you to complete a personality test.\n" +
+        "It’s simple: just answer these 70 short questions and you will get your results instantly. Careful: you can’t pick “B” more than 11 times.\n" +
+        "Have fun!";
 };
 
 
