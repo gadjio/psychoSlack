@@ -6,6 +6,7 @@ function AtmanWrapper(request) {
     this.answerQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
     this.getSkillsUrl = 'https://sandbox.atmanco.com/api/v1/GetSkills';
     this.candidateAuthenticationUrl = 'https://sandbox.atmanco.com/api/v1/CandidateAuthentication';
+    this.getCandidateStateUrl = 'https://sandbox.atmanco.com/api/v1/GetCandidateState';
 };
 
 AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
@@ -196,5 +197,41 @@ AtmanWrapper.prototype.candidateAuthentication = function (email) {
         });
     });
 };
+
+
+AtmanWrapper.prototype.getCandidateState = function (authKey) {
+    console.log("GetCandidateState");
+    var self = this;
+
+    return new Promise(function(success, failure) {
+        var body = {
+            RequestInfo: self.getRequestInfoData(authKey)
+        };
+
+        var options = {
+            url: self.getCandidateStateUrl,
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Authorization': self.authorization,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        console.log('before request GetCandidateState');
+        self.request(options, function (error, response, body) {
+            console.log("GetCandidateState received");
+            if (!error && response.statusCode == '200') {
+                console.log("GetCandidateState ok");
+                success({body:body});
+            } else {
+                console.log("GetCandidateState error");
+                failure(null);
+            }
+        });
+    });
+};
+
+
 
 module.exports = AtmanWrapper;

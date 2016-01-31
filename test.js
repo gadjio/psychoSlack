@@ -19,6 +19,12 @@ wrapper.createCandidate(email, 'Marc', 'Beaudry', 'M', languageCode).then(
                     function(success) {
                         var skills = success.body;
                         console.log(skills);
+                        wrapper.getCandidateState(authKey).then(
+                            function(successState) {
+                                var state = successState.body;
+                                console.log(state);
+                            }
+                        );
                     }
                 );
             } else (
