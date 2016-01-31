@@ -15,15 +15,17 @@ AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
 };
 
 AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, gender, language) {
-    if(this.debug) console.log("createCandidate");
+    if(this.debug) console.log("createCandidate " + email);
     var self = this;
+
+    console.log("createCandidate " + email);
 
     return new Promise(function(success, failure) {
 
         var body = {
             selectedSexChoice: gender,
-            candidateFirstname: firstname,
-            candidateLastname: lastname,
+            candidateFirstname: firstname +  ' ',
+            candidateLastname: lastname + ' ',
             candidateCompany: 'psychoSlack',
             candidateNip: '1234',
             selectedLanguageChoice: language,
@@ -50,7 +52,8 @@ AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, g
                 if(self.debug) console.log("createCandidate ok");
                 success({body:body});
             } else {
-                if(this.debug) console.log("createCandidate error");
+                if(this.debug) console.log("createCandidate error " + response.statusCode + JSON.stringify(response.body));
+
                 failure(null);
             }
         });
