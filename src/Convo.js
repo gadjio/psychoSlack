@@ -1,9 +1,11 @@
 function Convo(bot, usersList) {
     this.bot = bot;
     this.usersList = usersList;
+    this.messageFormatter = new MessageFormatter();
 }
 
 var AtmanWrapper = require('./AtmanWrapper');
+var MessageFormatter = require('./MsgFormatter');
 
 Convo.prototype.start = function(message) {
     if (this.usersList.getGender(message.user)) {
@@ -51,46 +53,6 @@ Convo.prototype.askQuestion = function(message) {
     var self = this;
     //var question = GetQuestion();
 
-    function formatQuestion(JSONquestion) {
-        var possibleAnswers = JSONquestion.assessmentAnswer;
-        possibleAnswers = possibleAnswers.map(function(answer) {
-            return {
-                question: answer.value + ":\t" + answer.text,
-                isDisabled: answer.isDisabled
-            }
-        }).filter(function(answer) {
-            return !answer.isDisabled;
-        }).map(function(answer) {
-            return answer.question;
-        }).reduce(function(a, b) {
-            var something = a + "\n" + b;
-            console.log(something);
-            return something;
-        });
-
-        var fallback = JSONquestion.assessmentQuestion + " - " + possibleAnswers;
-        var numberOfQuestionsRemaining = JSONquestion.totalNumberOfQuestions - JSONquestion.numberOfQuestionAnswered + " questions remaining";
-        const numberOfBRemaining = JSONquestion.numberOfBLeft;
-        var remainingBColor = numberOfBRemaining >= 8 ? "#1ecd26" : numberOfBRemaining >= 4 ? "#f5ed18" : "#f52d18";
-
-        return {
-            "text" : "",
-            "attachments": [
-                {
-                    "fallback": fallback,
-                    "color": "#DE9E31",
-                    "pretext": numberOfQuestionsRemaining,
-                    "title": JSONquestion.assessmentQuestion,
-                    "text": possibleAnswers
-                },
-                {
-                    "text" : JSONquestion.localizedNumberOfB,
-                    "color" : remainingBColor
-                }
-            ]
-        };
-    }
-
     var question = {
         "assessmentQuestion": "Usually, when I go to bed:",
         "assessmentAnswer": [{
@@ -120,7 +82,7 @@ Convo.prototype.askQuestion = function(message) {
         "canUsePrevious": false
     };
 
-    var formattedQuestion = formatQuestion(question);
+    var formattedQuestion = this.messageFormatter.formatQuestion(question);
 
     // start a conversation to handle this response.
     this.bot.startConversation(message, function (err, conversation) {
