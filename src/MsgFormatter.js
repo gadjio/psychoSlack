@@ -83,7 +83,7 @@
 
     };
 
-    MessageFormatter.prototype.formatResult = function(JSONResult) {
+    MessageFormatter.prototype.formatResult = function(JSONResult, username) {
 
         var picturesDictionary =  [];
 
@@ -122,6 +122,12 @@
                 attachments.push(item);
             });
 
+        var bloomedLinkItem ={
+            "color": "#1ecd26",
+            "text" : " View your complete profile: " + "bloomed.com" + " \nUsername : " + username + "\nPassword : 1234" ,
+            "mrkdwn_in": ["text"],
+        };
+        attachments.push(bloomedLinkItem);
 
         return {
             "text" : "",

@@ -64,7 +64,7 @@ Convo.prototype.askQuestion = function(conversation, user) {
                         function(success) {
                             var skills = JSON.parse(success.body);
                             var formatter = new MessageFormatter();
-                            var str = formatter.formatResult(skills);
+                            var str = formatter.formatResult(skills, self.usersListObj.getEmail(user));
                             if(self.debug) console.log(str);
 
                             conversation.ask(str, [
