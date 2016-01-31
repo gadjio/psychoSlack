@@ -5,7 +5,10 @@ console.log('starting test');
 
 var wrapper = new AtmanWrapper(request);
 var languageCode = 'en-us';
-wrapper.createCandidate('test' + Date.now() +'@gmail.com', 'Marc', 'Beaudry', 'M', languageCode).then(
+var email = 'test'+Date.now()+'@gmail.com';
+console.log(email);
+
+wrapper.createCandidate(email, 'Marc', 'Beaudry', 'M', languageCode).then(
     //success callback
     function(success) {
         var authKey = success.body;
@@ -43,8 +46,9 @@ wrapper.createCandidate('test' + Date.now() +'@gmail.com', 'Marc', 'Beaudry', 'M
 
 
 
-/*
-wrapper.createCandidate('newTest' + Date.now() +'@gmail.com', 'Marc', 'Beaudry', 'M', languageCode).then(
+var existingEmail = 'test@gmail.com';
+console.log('Test auth');
+wrapper.candidateAuthentication(existingEmail).then(
     //success callback
     function(success) {
         var authKey = success.body;
@@ -55,8 +59,7 @@ wrapper.createCandidate('newTest' + Date.now() +'@gmail.com', 'Marc', 'Beaudry',
             function(success) {
                 var skills = success.body;
                 console.log(skills);
-    }
+            }
         );
     }
 );
-*/

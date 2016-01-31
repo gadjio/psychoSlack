@@ -170,8 +170,7 @@ AtmanWrapper.prototype.candidateAuthentication = function (email) {
     return new Promise(function(success, failure) {
         var body = {
             candidateEmail: email,
-            candidatePin    : "1234",
-            RequestInfo: self.getRequestInfoData(authKey)
+            candidatePin  : "1234"
         };
 
         var options = {
