@@ -1,9 +1,11 @@
 function Convo(bot, usersList) {
     this.bot = bot;
     this.usersList = usersList.usersList;
+    this.messageFormatter = new MessageFormatter();
 }
 
 var AtmanWrapper = require('./AtmanWrapper');
+var MessageFormatter = require('./MsgFormatter');
 
 Convo.prototype.start = function(message) {
     console.log('start');
