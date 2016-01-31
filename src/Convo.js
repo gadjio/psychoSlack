@@ -28,22 +28,46 @@ Convo.prototype.askQuestion = function(conversation, user) {
             function(success) {
 
                 var assessmentQuestion = JSON.parse(success.body);
-                var questionId = assessmentQuestion.questionId;
-                self.usersList[user]['questionId'] = questionId;
-                console.log(questionId);
+                if(assessmentQuestion.assessmentQuestion != null) {
+                    var questionId = assessmentQuestion.questionId;
+                    self.usersList[user]['questionId'] = questionId;
+                    console.log(questionId);
 
-                var formatter = new MessageFormatter();
-                var str = formatter.formatQuestion(assessmentQuestion);
-                console.log(str);
-                conversation.ask(str, [
-                    {
-                        pattern: '.*',
-                        callback: function(response, conversation) {
-                            self.userInputHandler(self, response, conversation);
+                    var formatter = new MessageFormatter();
+                    var str = formatter.formatQuestion(assessmentQuestion);
+                    console.log(str);
+                    conversation.ask(str, [
+                        {
+                            pattern: '.*',
+                            callback: function(response, conversation) {
+                                self.userInputHandler(self, response, conversation);
+                            }
                         }
-                    }
-                ]);
-                conversation.next();
+                    ]);
+                    conversation.next();
+                } else {
+
+                    self.atmanWrapper.getSkills(self.usersList[user]['authKey']).then(
+
+                        function(success) {
+                            var skills = JSON.parse(success.body);
+                            var formatter = new MessageFormatter();
+                            var str = formatter.formatResult(skills);
+                            console.log(str);
+
+                            conversation.ask(str, [
+                                {
+                                    pattern: '.*',
+                                    callback: function(response, conversation) {
+                                        self.userInputHandler(self, response, conversation);
+                                    }
+                                }
+                            ]);
+                            conversation.next();
+                        }
+                    );
+
+                }
             }
         );
     } else {
