@@ -1,13 +1,13 @@
-function AtmanWrapper(request, debug) {
+function AtmanWrapper(request, authToken, baseApiUrl, debug) {
     this.debug = debug;
     this.request = request;
-    this.authorization = 'Basic cGhpbGlwcGUuZ3JhbmRtb250QGdtYWlsLmNvbTpoTlV1ajI=';
-    this.createCandidateUrl = 'https://sandbox.atmanco.com/api/v1/CreateCandidate';
-    this.getQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
-    this.answerQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
-    this.getSkillsUrl = 'https://sandbox.atmanco.com/api/v1/GetSkills';
-    this.candidateAuthenticationUrl = 'https://sandbox.atmanco.com/api/v1/CandidateAuthentication';
-    this.getCandidateStateUrl = 'https://sandbox.atmanco.com/api/v1/GetCandidateState';
+    this.authorization = 'Basic ' + authToken;
+    this.createCandidateUrl = baseApiUrl + '/api/v1/CreateCandidate';
+    this.getQuestionUrl = baseApiUrl + '/api/v1/GetAssessmentInformation';
+    this.answerQuestionUrl = baseApiUrl + '/api/v1/GetAssessmentInformation';
+    this.getSkillsUrl = baseApiUrl + '/api/v1/GetSkills';
+    this.candidateAuthenticationUrl = baseApiUrl + '/api/v1/CandidateAuthentication';
+    this.getCandidateStateUrl = baseApiUrl + '/api/v1/GetCandidateState';
 };
 
 AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
@@ -15,15 +15,17 @@ AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
 };
 
 AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, gender, language) {
-    if(this.debug) console.log("createCandidate");
+    if(this.debug) console.log("createCandidate " + email);
     var self = this;
+
+    console.log("createCandidate " + email);
 
     return new Promise(function(success, failure) {
 
         var body = {
             selectedSexChoice: gender,
-            candidateFirstname: firstname,
-            candidateLastname: lastname,
+            candidateFirstname: firstname +  ' ',
+            candidateLastname: lastname + ' ',
             candidateCompany: 'psychoSlack',
             candidateNip: '1234',
             selectedLanguageChoice: language,
@@ -50,7 +52,8 @@ AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, g
                 if(self.debug) console.log("createCandidate ok");
                 success({body:body});
             } else {
-                if(this.debug) console.log("createCandidate error");
+                if(this.debug) console.log("createCandidate error " + response.statusCode + JSON.stringify(response.body));
+
                 failure(null);
             }
         });
