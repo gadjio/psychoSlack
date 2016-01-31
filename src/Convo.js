@@ -21,6 +21,17 @@ Convo.prototype.ask = function(conversation, user) {
     console.log('ask');
     var self = this;
     var question = 'Male or Female?';
+    //if (user in self.usersList){
+    //    var usersOptions = {
+    //        token: token,
+    //        user: user
+    //    };
+    //
+    //    bot.api.users.info(usersOptions, function (err, response) {
+    //        self.usersList.load(response)
+    //    });
+    //}
+
     if (self.usersList[user].hasOwnProperty('gender')) {
         self.atmanWrapper.getQuestion(self.usersList[user]['authKey'], 'en-us').then(
             function(success) {
@@ -29,6 +40,8 @@ Convo.prototype.ask = function(conversation, user) {
                 var questionId = assessmentQuestion.questionId;
                 self.usersList[user]['questionId'] = questionId;
                 console.log(questionId);
+
+
 
                 //var str = this.messageFormatter.formatQuestion(assessmentQuestion);
                 //console.log(str);
