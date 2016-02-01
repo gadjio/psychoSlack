@@ -52,7 +52,7 @@ controller.hears(['help'],['direct_message','direct_mention','mention'],function
 	bot.reply(message,"How to use me : type 'invite' to invite all people on the channel to start the test.");
 });
 
-controller.hears(['team'],['direct_message'],function(bot,message) {
+controller.hears(['team'],['direct_message', 'direct_mention'],function(bot,message) {
 	const msg = msgFormatter.getEasterEgg();
 	bot.reply(message, msg);
 });
