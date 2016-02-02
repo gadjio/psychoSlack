@@ -8,7 +8,7 @@ var languageCode = 'en-us';
 var email = 'test'+Date.now()+'@gmail.com';
 console.log(email);
 
-wrapper.createCandidate(email, 'Marc', 'Beaudry', 'M', languageCode).then(
+wrapper.createCandidate(email, 'Marc', 'Beaudry', 'M', languageCode, '1234').then(
     //success callback
     function(success) {
         var authKey = success.body;
@@ -38,7 +38,7 @@ wrapper.createCandidate(email, 'Marc', 'Beaudry', 'M', languageCode).then(
                         wrapper.answerQuestion(authKey, questionId, 'A', languageCode).then(
                             function(answerSucces) {
                                 var assessmentResult = JSON.parse(answerSucces.body)
-                                completed = assessmentResult.assesmentIsCompleted;
+                                completed = assessmentResult.assessmentIsCompleted;
                                 loop();
                             }
                         )
@@ -54,7 +54,7 @@ wrapper.createCandidate(email, 'Marc', 'Beaudry', 'M', languageCode).then(
 
 var existingEmail = 'test@gmail.com';
 console.log('Test auth');
-wrapper.candidateAuthentication(existingEmail).then(
+wrapper.candidateAuthentication(existingEmail, '1234').then(
     //success callback
     function(success) {
         var authKey = success.body;

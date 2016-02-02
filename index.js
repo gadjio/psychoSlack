@@ -61,7 +61,45 @@ controller.hears(['start'],['direct_message'],function(bot,message) {
 	convo.start(message);
 });
 
-controller.hears(['invite'],['direct_mention'],function(bot,message) {
+controller.hears(['invite-me'],['direct_mention'],function(bot,message) {
+	var callBackChannelInfo = function(status, response){
+
+		if(status != undefined)
+		{
+			console.log('status :');
+			console.log(status);
+		}
+		else
+		{
+			var userId = message.user
+			var usersOptions = {
+				token: slackApiToken,
+				user: userId
+			};
+
+			bot.api.users.info(usersOptions, function (err, response) {
+				if(response.user.is_bot){
+
+				}else{
+					var msg = {
+						user: response.user.id
+					};
+					bot.startPrivateConversation(msg, function(err, dm){
+						console.log("start conversation error : " + JSON.stringify(err));
+						console.log("userId : " + response.user.id);
+
+						convo.startFromInvite(dm, response.user.id, message.user)
+					});
+				}
+			});
+		}
+	};
+
+	console.log("bot.api.channels.info : ");
+	bot.api.channels.info( { token: slackApiToken, channel: message.channel }, callBackChannelInfo );
+});
+
+controller.hears(['invite-all'],['direct_mention'],function(bot,message) {
 
 	var callBackChannelInfo = function(status, response){
 
