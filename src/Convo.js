@@ -4,7 +4,7 @@ var request = require('request');
 
 function Convo(bot, usersList, authToken, atmanApiUrl) {
     this.useRandomEmail = false;
-    this.debug = true;
+    this.debug = false;
     this.bot = bot;
     this.usersList = usersList.usersList;
     this.atmanWrapper = new AtmanWrapper(request, authToken, atmanApiUrl, this.debug);
