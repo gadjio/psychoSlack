@@ -29,6 +29,12 @@ Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
     if(this.debug) console.log('askQuestion');
     var self = this;
 
+    if(self.usersList[user].hasOwnProperty('assessmentIsCompleted') && self.usersList[user]['assessmentIsCompleted'] == true)
+    {
+        if(this.debug) console.log('assessment is completed');
+        return;
+    }
+
     if (!requestingUserId && self.usersList[user].hasOwnProperty('bloomedError')) {
         if(this.debug) console.log('hasOwnProperty bloomedError');
         conversation.next();
