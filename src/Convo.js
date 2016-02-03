@@ -3,7 +3,7 @@ var MessageFormatter = require('./MsgFormatter');
 var request = require('request');
 
 function Convo(bot, usersList, authToken, atmanApiUrl) {
-    this.useRandomEmail = true;
+    this.useRandomEmail = false;
     this.debug = false;
     this.bot = bot;
     this.usersList = usersList.usersList;
@@ -29,9 +29,46 @@ Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
     if(this.debug) console.log('askQuestion');
     var self = this;
 
-    if (self.usersList[user].hasOwnProperty('gender')) {
+    if (!requestingUserId && self.usersList[user].hasOwnProperty('bloomedError')) {
+        if(this.debug) console.log('hasOwnProperty bloomedError');
+        conversation.next();
+        return;
+    }
 
-        // gender is set, fetch the next question from api, then ask it
+    if (self.usersList[user].hasOwnProperty('authKey')) {
+        if(this.debug) console.log('hasOwnProperty authkey');
+        //continue
+    } else {
+        var currentUser = self.usersList[user];
+        var password = user.substr(0, 5);
+        self.atmanWrapper.candidateAuthentication(currentUser.email, password).then(
+            function (authKey) {
+                if(this.debug) console.log('login reponse' + authKey);
+                if (authKey) {
+                    if(this.debug) console.log('login success');
+                    self.usersList[user]['authKey'] = authKey;
+                    self.atmanWrapper.getCandidateState(authKey).then(
+                        function (candidateState) {
+                            if(this.debug) console.log('getCandidateState success');
+                            self.usersList[user]['assessmentIsCompleted'] = candidateState.assessmentIsCompleted;
+                        }
+                    );
+                } else {
+                    if(this.debug) console.log('login fail - no auth key');
+                }
+            }
+        );
+    }
+
+    if( self.usersList[user].hasOwnProperty('assessmentIsCompleted') && self.usersList[user]['assessmentIsCompleted'] == true){
+        // nothing happen to the candidate - test is already completed
+        if(this.debug) console.log('assessmentIsCompleted');
+        return;
+    }
+
+    if (self.usersList[user].hasOwnProperty('authKey')) {
+
+        // candidate is created, fetch the next question from api, then ask it
         var authKey = self.usersList[user]['authKey'];
         self.atmanWrapper.getQuestion(authKey, 'en-us').then(
 
@@ -105,7 +142,7 @@ Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
 Convo.prototype.getIntroMessage = function(user, requestingUserId) {
     var introBegin;
 
-    if (requestingUserId) {
+    if (requestingUserId && user != requestingUserId) {
         console.log(this.usersList[requestingUserId].name);
         introBegin =  "Care to figure out your innate skills? " +
             this.usersList[requestingUserId].real_name +
@@ -128,23 +165,30 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
 
         var email = currentUser.email;
         if(self.useRandomEmail) {
-            var randomName = Math.floor(Math.random() * 1000) + 1;
             var split = currentUser.email.split('@');
             email = split[0] + '+' + Date.now() + '@' + split[1];
         }
 
         if (text.toLowerCase().match('^[m|f]$')) {
             var gender = text.toUpperCase();
+            var password = response.user.substr(0,5);
             currentUser['gender'] = gender;
             currentUser['bloomedUsername'] = email;
-            self.atmanWrapper.createCandidate(email, currentUser.first_name, currentUser.last_name, gender, 'en-us').then(
+            currentUser['bloomedPassword'] = password;
+            self.atmanWrapper.createCandidate(email, currentUser.first_name, currentUser.last_name, gender, 'en-us', password).then(
                 function(success) {
                     var authKey = success.body;
                     currentUser['authKey'] = authKey;
                     if(self.debug) console.log(authKey);
                     self.askQuestion(conversation, response.user);
                 }, function(failure) {
+                    if(self.debug) console.log(JSON.stringify(failure));
+                    currentUser['bloomedError'] = true;
+                    delete currentUser['gender'];
+                    delete currentUser['saidIntro'];
+                    conversation.say(failure.message);
                     self.askQuestion(conversation, response.user);
+                    //self.askQuestion(conversation, response.user);
                 }
             );
         } else {

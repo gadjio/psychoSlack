@@ -14,7 +14,7 @@ AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
     return { AuthenticationKey : authKey };
 };
 
-AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, gender, language) {
+AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, gender, language, password) {
     if(this.debug) console.log("createCandidate " + email);
     var self = this;
 
@@ -27,7 +27,7 @@ AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, g
             candidateFirstname: firstname +  ' ',
             candidateLastname: lastname + ' ',
             candidateCompany: 'psychoSlack',
-            candidateNip: '1234',
+            candidateNip: password,
             selectedLanguageChoice: language,
             candidateEmail: email,
             receiveOffers: null
@@ -54,7 +54,7 @@ AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, g
             } else {
                 if(this.debug) console.log("createCandidate error " + response.statusCode + JSON.stringify(response.body));
 
-                failure(null);
+                failure(JSON.parse(response.body));
             }
         });
     });
@@ -168,14 +168,14 @@ AtmanWrapper.prototype.getSkills = function (authKey) {
     });
 };
 
-AtmanWrapper.prototype.candidateAuthentication = function (email) {
+AtmanWrapper.prototype.candidateAuthentication = function (email, password) {
     if(this.debug) console.log("candidateAuthentication");
     var self = this;
 
-    return new Promise(function(success, failure) {
+    return new Promise(function(cb) {
         var body = {
             candidateEmail: email,
-            candidatePin  : "1234"
+            candidatePin  : password
         };
 
         var options = {
@@ -193,10 +193,10 @@ AtmanWrapper.prototype.candidateAuthentication = function (email) {
             if(self.debug) console.log("candidateAuthentication received");
             if (!error && response.statusCode == '200') {
                 if(self.debug) console.log("candidateAuthentication ok");
-                success({body:body});
+                cb({body:body});
             } else {
                 if(self.debug) console.log("candidateAuthentication error");
-                failure(null);
+                cb();
             }
         });
     });
