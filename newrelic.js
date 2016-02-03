@@ -8,7 +8,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['PsychoSlack Bot'],
+  app_name: ['whispering-plateau-89021'],
   /**
    * Your New Relic license key.
    */
