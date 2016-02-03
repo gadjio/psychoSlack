@@ -2,18 +2,18 @@ var AtmanWrapper = require('./AtmanWrapper');
 var MessageFormatter = require('./MsgFormatter');
 var request = require('request');
 
-function Convo(bot, usersList) {
+function Convo(bot, usersList, authToken, atmanApiUrl) {
+    this.useRandomEmail = false;
     this.debug = false;
     this.bot = bot;
-    this.usersListObj = usersList;
     this.usersList = usersList.usersList;
-    this.atmanWrapper = new AtmanWrapper(request, this.debug);
+    this.atmanWrapper = new AtmanWrapper(request, authToken, atmanApiUrl, this.debug);
 }
 
 
-Convo.prototype.startFromInvite = function(dm, userId) {
+Convo.prototype.startFromInvite = function(dm, userId, requestingUserId) {
     console.log('start from invite');
-    this.askQuestion(dm, userId);
+    this.askQuestion(dm, userId, requestingUserId);
 
 };
 
@@ -25,13 +25,50 @@ Convo.prototype.start = function(message) {
     });
 };
 
-Convo.prototype.askQuestion = function(conversation, user) {
+Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
     if(this.debug) console.log('askQuestion');
     var self = this;
 
-    if (self.usersList[user].hasOwnProperty('gender')) {
+    if (!requestingUserId && self.usersList[user].hasOwnProperty('bloomedError')) {
+        if(this.debug) console.log('hasOwnProperty bloomedError');
+        conversation.next();
+        return;
+    }
 
-        // gender is set, fetch the next question from api, then ask it
+    if (self.usersList[user].hasOwnProperty('authKey')) {
+        if(this.debug) console.log('hasOwnProperty authkey');
+        //continue
+    } else {
+        var currentUser = self.usersList[user];
+        var password = user.substr(0, 5);
+        self.atmanWrapper.candidateAuthentication(currentUser.email, password).then(
+            function (authKey) {
+                if(this.debug) console.log('login reponse' + authKey);
+                if (authKey) {
+                    if(this.debug) console.log('login success');
+                    self.usersList[user]['authKey'] = authKey;
+                    self.atmanWrapper.getCandidateState(authKey).then(
+                        function (candidateState) {
+                            if(this.debug) console.log('getCandidateState success');
+                            self.usersList[user]['assessmentIsCompleted'] = candidateState.assessmentIsCompleted;
+                        }
+                    );
+                } else {
+                    if(this.debug) console.log('login fail - no auth key');
+                }
+            }
+        );
+    }
+
+    if( self.usersList[user].hasOwnProperty('assessmentIsCompleted') && self.usersList[user]['assessmentIsCompleted'] == true){
+        // nothing happen to the candidate - test is already completed
+        if(this.debug) console.log('assessmentIsCompleted');
+        return;
+    }
+
+    if (self.usersList[user].hasOwnProperty('authKey')) {
+
+        // candidate is created, fetch the next question from api, then ask it
         var authKey = self.usersList[user]['authKey'];
         self.atmanWrapper.getQuestion(authKey, 'en-us').then(
 
@@ -57,12 +94,13 @@ Convo.prototype.askQuestion = function(conversation, user) {
                     conversation.next();
                 } else {
 
+                    conversation.say("Please wait while we process your answers...");
                     self.atmanWrapper.getSkills(self.usersList[user]['authKey']).then(
 
                         function(success) {
                             var skills = JSON.parse(success.body);
                             var formatter = new MessageFormatter();
-                            var str = formatter.formatResult(skills);
+                            var str = formatter.formatResult(skills, self.usersList[user]['bloomedUsername']);
                             if(self.debug) console.log(str);
 
                             conversation.ask(str, [
@@ -83,7 +121,7 @@ Convo.prototype.askQuestion = function(conversation, user) {
     } else {
         // we ask the gender
         if(!self.usersList[user].hasOwnProperty('saidIntro')) {
-            conversation.say(this.getIntroMessage(user));
+            conversation.say(this.getIntroMessage(user, requestingUserId));
             self.usersList[user]['saidIntro'] = true;
         }
         var formatter = new MessageFormatter();
@@ -101,10 +139,21 @@ Convo.prototype.askQuestion = function(conversation, user) {
     }
 };
 
-Convo.prototype.getIntroMessage = function(user){
-    var fullName = this.usersListObj.getFullName(user);
+Convo.prototype.getIntroMessage = function(user, requestingUserId) {
+    var introBegin;
 
-    return "Salut " + fullName + "!!! Bonne chan le gran";
+    if (requestingUserId && user != requestingUserId) {
+        console.log(this.usersList[requestingUserId].name);
+        introBegin =  "Care to figure out your innate skills? " +
+            this.usersList[requestingUserId].real_name +
+            " invited you to complete a personality test.\n";
+    } else {
+        introBegin = "We are glad to see you’re eager to learn more about your innate skills with this personality test! "
+    }
+
+    return introBegin +
+        "It’s simple: just answer these 70 short questions and you will get your results instantly. Careful: you can’t pick “B” more than 11 times.\n" +
+        "Have fun!";
 };
 
 
@@ -114,24 +163,36 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
     var currentUser = self.usersList[response.user];
     if(!currentUser.hasOwnProperty('gender')) {
 
-        var randomName = Math.floor(Math.random() * 1000) + 1;
-        var email = 'test' + randomName + '@gmail.com';
+        var email = currentUser.email;
+        if(self.useRandomEmail) {
+            var split = currentUser.email.split('@');
+            email = split[0] + '+' + Date.now() + '@' + split[1];
+        }
 
         if (text.toLowerCase().match('^[m|f]$')) {
             var gender = text.toUpperCase();
+            var password = response.user.substr(0,5);
             currentUser['gender'] = gender;
-            self.atmanWrapper.createCandidate(email, 'marc', 'beaudry', gender, 'en-us').then(
+            currentUser['bloomedUsername'] = email;
+            currentUser['bloomedPassword'] = password;
+            self.atmanWrapper.createCandidate(email, currentUser.first_name, currentUser.last_name, gender, 'en-us', password).then(
                 function(success) {
                     var authKey = success.body;
                     currentUser['authKey'] = authKey;
                     if(self.debug) console.log(authKey);
                     self.askQuestion(conversation, response.user);
                 }, function(failure) {
+                    if(self.debug) console.log(JSON.stringify(failure));
+                    currentUser['bloomedError'] = true;
+                    delete currentUser['gender'];
+                    delete currentUser['saidIntro'];
+                    conversation.say(failure.message);
                     self.askQuestion(conversation, response.user);
+                    //self.askQuestion(conversation, response.user);
                 }
             );
         } else {
-            conversation.say("Sorry, you selected an invalid gender");
+            conversation.say("This test was created for human beings only! Please type M for male, or F for female");
             self.askQuestion(conversation, response.user);
         }
     } else {
@@ -150,11 +211,10 @@ Convo.prototype.userInputHandler = function(self, response, conversation) {
                 }
             );
         } else {
-            conversation.say("Sorry, you selected an invalid option");
+            conversation.say("Please type A, B, or C according to your answer.");
             self.askQuestion(conversation, response.user);
         }
     }
-
 };
 
 module.exports = Convo;

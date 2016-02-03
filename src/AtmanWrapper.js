@@ -1,31 +1,33 @@
-function AtmanWrapper(request, debug) {
+function AtmanWrapper(request, authToken, baseApiUrl, debug) {
     this.debug = debug;
     this.request = request;
-    this.authorization = 'Basic cGhpbGlwcGUuZ3JhbmRtb250QGdtYWlsLmNvbTpoTlV1ajI=';
-    this.createCandidateUrl = 'https://sandbox.atmanco.com/api/v1/CreateCandidate';
-    this.getQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
-    this.answerQuestionUrl = 'https://sandbox.atmanco.com/api/v1/GetAssessmentInformation';
-    this.getSkillsUrl = 'https://sandbox.atmanco.com/api/v1/GetSkills';
-    this.candidateAuthenticationUrl = 'https://sandbox.atmanco.com/api/v1/CandidateAuthentication';
-    this.getCandidateStateUrl = 'https://sandbox.atmanco.com/api/v1/GetCandidateState';
+    this.authorization = 'Basic ' + authToken;
+    this.createCandidateUrl = baseApiUrl + '/api/v1/CreateCandidate';
+    this.getQuestionUrl = baseApiUrl + '/api/v1/GetAssessmentInformation';
+    this.answerQuestionUrl = baseApiUrl + '/api/v1/GetAssessmentInformation';
+    this.getSkillsUrl = baseApiUrl + '/api/v1/GetSkills';
+    this.candidateAuthenticationUrl = baseApiUrl + '/api/v1/CandidateAuthentication';
+    this.getCandidateStateUrl = baseApiUrl + '/api/v1/GetCandidateState';
 };
 
 AtmanWrapper.prototype.getRequestInfoData = function(authKey) {
     return { AuthenticationKey : authKey };
 };
 
-AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, gender, language) {
-    if(this.debug) console.log("createCandidate");
+AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, gender, language, password) {
+    if(this.debug) console.log("createCandidate " + email);
     var self = this;
+
+    console.log("createCandidate " + email);
 
     return new Promise(function(success, failure) {
 
         var body = {
             selectedSexChoice: gender,
-            candidateFirstname: firstname,
-            candidateLastname: lastname,
+            candidateFirstname: firstname +  ' ',
+            candidateLastname: lastname + ' ',
             candidateCompany: 'psychoSlack',
-            candidateNip: '1234',
+            candidateNip: password,
             selectedLanguageChoice: language,
             candidateEmail: email,
             receiveOffers: null
@@ -50,8 +52,9 @@ AtmanWrapper.prototype.createCandidate = function (email, firstname, lastname, g
                 if(self.debug) console.log("createCandidate ok");
                 success({body:body});
             } else {
-                if(this.debug) console.log("createCandidate error");
-                failure(null);
+                if(this.debug) console.log("createCandidate error " + response.statusCode + JSON.stringify(response.body));
+
+                failure(JSON.parse(response.body));
             }
         });
     });
@@ -165,14 +168,14 @@ AtmanWrapper.prototype.getSkills = function (authKey) {
     });
 };
 
-AtmanWrapper.prototype.candidateAuthentication = function (email) {
+AtmanWrapper.prototype.candidateAuthentication = function (email, password) {
     if(this.debug) console.log("candidateAuthentication");
     var self = this;
 
-    return new Promise(function(success, failure) {
+    return new Promise(function(cb) {
         var body = {
             candidateEmail: email,
-            candidatePin  : "1234"
+            candidatePin  : password
         };
 
         var options = {
@@ -190,10 +193,10 @@ AtmanWrapper.prototype.candidateAuthentication = function (email) {
             if(self.debug) console.log("candidateAuthentication received");
             if (!error && response.statusCode == '200') {
                 if(self.debug) console.log("candidateAuthentication ok");
-                success({body:body});
+                cb({body:body});
             } else {
                 if(self.debug) console.log("candidateAuthentication error");
-                failure(null);
+                cb();
             }
         });
     });
