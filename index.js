@@ -7,7 +7,7 @@ var UsersList = require('./src/UsersList.js');
 
 // Get Server Config
 var botToken = config.get('botToken');
-var botName = config.get('botName');
+
 var testUser = config.get('testUser');
 
 var optionToken = 'xoxp-19879990401-19874729492-19892570103-995c3fc727'
@@ -21,7 +21,6 @@ var invitationMessage ="Hello there!, " + Date.now();
 
 console.log("\n" + "Current config:");
 console.log("Bot optionToken: " + botToken);
-console.log("Bot name: " + botName);
 console.log("Test user: " + testUser + "\n");
 
 var wrapper = new AtmanWrapper(request);
@@ -46,7 +45,7 @@ bot.startRTM(function(err,bot,payload) {
 		throw new Error('Could not connect to Slack');
 	}
 	else {
-		console.log('Connected to bot ' + botName);
+
 	}
 });
 
