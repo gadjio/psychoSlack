@@ -1,4 +1,4 @@
-var SlackBot = require('slackbots');
+
 var config = require('config');
 var Convo = require('./src/Convo.js');
 var request = require('request');
