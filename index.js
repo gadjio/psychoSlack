@@ -63,7 +63,7 @@ controller.hears(['hello','hi'],['direct_message','direct_mention','mention'],fu
 });
 
 controller.hears(['help'],['direct_message','direct_mention','mention'],function(bot,message) {
-	bot.reply(message,"How to use me : type 'invite' to invite all people on the channel to start the test.");
+	bot.reply(message,"How to use me : type 'invite-me' to get an invitation to start the assessment. type 'invite-all' to invite all people on the channel to start the test.");
 });
 
 controller.hears(['team'],['direct_message', 'direct_mention'],function(bot,message) {

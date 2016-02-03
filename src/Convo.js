@@ -35,6 +35,11 @@ Convo.prototype.askQuestion = function(conversation, user, requestingUserId) {
         return;
     }
 
+    if (requestingUserId && requestingUserId != user && self.usersList[user].hasOwnProperty('bloomedError')) {
+        if(this.debug) console.log('hasOwnProperty bloomedError');
+        return;
+    }
+
     if (self.usersList[user].hasOwnProperty('authKey')) {
         if(this.debug) console.log('hasOwnProperty authkey');
         //continue
