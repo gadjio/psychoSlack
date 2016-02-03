@@ -13,6 +13,7 @@ function Convo(bot, usersList, authToken, atmanApiUrl) {
 
 Convo.prototype.startFromInvite = function(dm, userId, requestingUserId) {
     console.log('start from invite');
+
     this.askQuestion(dm, userId, requestingUserId);
 
 };

@@ -1,5 +1,4 @@
-require('newrelic');
-
+var newrelic = require('newrelic');
 var config = require('config');
 var request = require('request');
 var Botkit = require('botkit');
@@ -9,8 +8,13 @@ var UsersList = require('./src/UsersList.js');
 var MessageFormatter = require('./src/MsgFormatter.js');
 var express = require('express');
 
+var app = express();
 
-var app     = express();
+// In Express, this lets you call newrelic from within a template.
+app.locals.newrelic = newrelic;
+app.get('/user/:id', function (req, res) {
+	res.render('user');
+});
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -101,6 +105,11 @@ controller.hears(['invite-me'],['direct_mention'],function(bot,message) {
 					var msg = {
 						user: response.user.id
 					};
+
+					if(!convo.usersList[response.user.id]){
+						convo.usersList[response.user.id] = response.user;
+					}
+
 					bot.startPrivateConversation(msg, function(err, dm){
 						console.log("start conversation error : " + JSON.stringify(err));
 						console.log("userId : " + response.user.id);
@@ -146,6 +155,11 @@ controller.hears(['invite-all'],['direct_mention'],function(bot,message) {
 						var msg = {
 							user: response.user.id
 						};
+
+						if(!convo.usersList[response.user.id]){
+							convo.usersList[response.user.id] = response.user;
+						}
+
 						bot.startPrivateConversation(msg, function(err, dm){
 							console.log("start conversation error : " + JSON.stringify(err));
 							console.log("userId : " + response.user.id);
