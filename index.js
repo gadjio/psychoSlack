@@ -1,3 +1,4 @@
+var newrelic = require('newrelic');
 var config = require('config');
 var request = require('request');
 var Botkit = require('botkit');
@@ -5,6 +6,25 @@ var Convo = require('./src/Convo.js');
 var AtmanWrapper = require('./src/AtmanWrapper');
 var UsersList = require('./src/UsersList.js');
 var MessageFormatter = require('./src/MsgFormatter.js');
+var express = require('express');
+
+var app = express();
+
+// In Express, this lets you call newrelic from within a template.
+app.locals.newrelic = newrelic;
+app.get('/user/:id', function (req, res) {
+	res.render('user');
+});
+
+app.set('port', (process.env.PORT || 5000));
+
+//For avoidong Heroku $PORT error
+app.get('/', function(request, response) {
+	var result = 'App is running'
+	response.send(result);
+}).listen(app.get('port'), function() {
+	console.log('App is running, server is listening on port ', app.get('port'));
+});
 
 // Get Server Config
 var botToken = config.get('botToken');
@@ -49,7 +69,8 @@ controller.hears(['hello','hi'],['direct_message','direct_mention','mention'],fu
 });
 
 controller.hears(['help'],['direct_message','direct_mention','mention'],function(bot,message) {
-	bot.reply(message,"How to use me : type 'invite' to invite all people on the channel to start the test.");
+	bot.reply(message,"How to use me : type 'invite-me' to get an invitation to start the assessment.");
+	// type 'invite-all' to invite all people on the channel to start the test.
 });
 
 controller.hears(['team'],['direct_message', 'direct_mention'],function(bot,message) {
@@ -84,6 +105,11 @@ controller.hears(['invite-me'],['direct_mention'],function(bot,message) {
 					var msg = {
 						user: response.user.id
 					};
+
+					if(!convo.usersList[response.user.id]){
+						convo.usersList[response.user.id] = response.user;
+					}
+
 					bot.startPrivateConversation(msg, function(err, dm){
 						console.log("start conversation error : " + JSON.stringify(err));
 						console.log("userId : " + response.user.id);
@@ -129,6 +155,11 @@ controller.hears(['invite-all'],['direct_mention'],function(bot,message) {
 						var msg = {
 							user: response.user.id
 						};
+
+						if(!convo.usersList[response.user.id]){
+							convo.usersList[response.user.id] = response.user;
+						}
+
 						bot.startPrivateConversation(msg, function(err, dm){
 							console.log("start conversation error : " + JSON.stringify(err));
 							console.log("userId : " + response.user.id);
